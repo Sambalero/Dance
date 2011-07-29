@@ -2,15 +2,19 @@ require 'Qt4'
 
 class HowDidYouDoWidget < Qt::Widget
 #called by trainer.suggest_routine
-#TODO close demo window with widget focus
+#TODO close demo window with widget exit
     attr_accessor :performance_rating
-
+                                                     #is quit actually returned?
   def self.quit
     @@quit
   end
 
   def performance_rating
     @@performance_rating
+  end
+
+  def routine
+    @@routine
   end
 
   def value()
@@ -23,6 +27,10 @@ class HowDidYouDoWidget < Qt::Widget
 
   def lcd
     @lcd
+  end
+
+  def self.pass
+    @@pass
   end
 
   def initialize()
@@ -38,6 +46,7 @@ class HowDidYouDoWidget < Qt::Widget
 
     @@performance_rating = nil   #if I initialize this to nil, I can use that value as not practiced.
     @@quit = false
+    @@pass = false
 
     grid = Qt::GridLayout.new()
 
@@ -50,10 +59,17 @@ class HowDidYouDoWidget < Qt::Widget
     @slider.setValue(0)
     @next_button = Qt::PushButton.new "NEXT"
     @next_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
+    @launch_file_button = Qt::PushButton.new "SHOW ME"
+    @launch_file_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
+    @pass_button = Qt::PushButton.new "PASS"
+    @pass_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     @quit_button = Qt::PushButton.new "EXIT PROGRAM"
     @quit_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
 
     connect(@quit_button, SIGNAL('clicked()')) {@@quit = true
+      $qApp.quit}
+    connect(@launch_file_button, SIGNAL('clicked()')) {launch_routine_file}
+    connect(@pass_button, SIGNAL('clicked()')) {@@pass = true #pass is not used, nor does it have an accessor
       $qApp.quit}
     connect(@next_button, SIGNAL('clicked()')) {@@next = true #next is not used, nor does it have an accessor
       $qApp.quit}
@@ -63,15 +79,25 @@ class HowDidYouDoWidget < Qt::Widget
     grid.addWidget(@lcd, 0, 0, 1, 2)
     grid.addWidget(@slider, 1, 0, 1, 2)
     grid.addWidget(@next_button, 2, 0)
-    grid.addWidget(@quit_button, 2, 1)
+    grid.addWidget(@quit_button, 3, 1)
+    grid.addWidget(@launch_file_button, 2, 1)
+    grid.addWidget(@pass_button, 3, 0)
     setLayout(grid)
 
   end
 
-  def self.run_qt
+  def launch_routine_file #called by init_ui
+    fork do       #maybe this wants to be spawn?
+      exec "open #{routine.link}"
+    end
+  end
+
+
+  def self.run_qt(routine)
     app = Qt::Application.new ARGV
+    @@routine = routine
     performance_rating = HowDidYouDoWidget.new #need a better name
     app.exec
-    return performance_rating.performance_rating, quit
+    return performance_rating.performance_rating, quit, pass
   end
 end

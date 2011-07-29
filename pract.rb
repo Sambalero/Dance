@@ -30,8 +30,13 @@
 #	      last attempt successful? = set.routines[i].last_success_value
 #       score = set.routines[i].score
 #-------------------------------------------------------------------
-#TODO how do I handle stuff in series?
-#TODO track camera usage?
+####Todo how do I handle stuff in series?
+####Todo track camera usage?
+#TODO add priority, time since practiced to widget
+#TODO define priorities and add descriptor to widget
+#TODO confirm: does add routine update the set routine count?
+#TODO define success ranking and add descriptor to widget
+#TODO confirm: does add set update the number of sets count?
 #
 #Keith's suggestions
 #	consider getting rapid gui development with qt ruby by pragmatic press
@@ -50,13 +55,11 @@ require_relative 'marshaller'
 require_relative 'addset'
 require_relative 'practiceset'
 require_relative 'practiceroutine'
-require_relative 'chooseroutine'
+require_relative 'routinetoedit'
 require_relative 'editroutine'
 require_relative 'addroutine'
 require_relative 'howdidyoudo'
-
-
-#TODO edit set
+require_relative 'deleteroutine'
 
 def is_numeric?(string)
   true if Float(string) rescue false
@@ -131,7 +134,7 @@ end
 class Trainer
 
   include Marshaller
-#  include UserIO #TODO include Qtio?
+####  include widgets
 
 	def main #called from file
 		practice_sets = []
@@ -145,7 +148,7 @@ class Trainer
 		end
 	end
 
-  def at_exit(exit_code, practice_sets = [])  #see desktop/test.rb, pickaxe called by ######
+  def at_exit(exit_code, practice_sets = [])  #### confirm exit code required
     puts "Goodbye."
     if exit_code == 1
       write_practice_sets practice_sets
@@ -160,7 +163,7 @@ class Trainer
     end
 #-------------------add set----------------
     if add_set
-#      add_set(practice_sets)  #TODO add set, return or unmarshal
+#      add_set(practice_sets)  #TODO add set, return or unmarshal confirm done
       new_set_name = AddSetWidget.run_qt
       new_routines = []
       new_set = PracticeSet.new(new_set_name, 0, new_routines)
@@ -168,7 +171,7 @@ class Trainer
       practice_sets.push(new_set)
       practice_set_names.push(new_set_name)
 
- #add routine!     choose_set_to_practice(practice_sets, practice_set_names)
+      choose_set_to_practice(practice_sets, practice_set_names)
     end
 #------------------delete set-----------------------
     if delete_set
@@ -176,7 +179,7 @@ class Trainer
     end
 #---------------------------------------------------
     chosen_set_index = practice_set_names.index(chosen_set_name)   #unless csn = nil, then qad instead
-    chosen_set = practice_sets[chosen_set_index]
+    chosen_set = practice_sets[chosen_set_index]  #TODO: added set shows up as nil here...
     chosen_set.sort_routines_by_score
     practice_routines(chosen_set, practice_sets, practice_set_names)  #TODO move recursion to here? (chg to chosen set =, if none recurse
     chosen_set.sort_routines_by_score
@@ -207,8 +210,21 @@ class Trainer
         intitial_set_size += 1 if intitial_set_size != nil
   end
 
+  def delete_routine(routines_in_process, chosen_set, routines_to_delete)
+    routines_to_delete.each do |rtd|
 
-  def practice_routines(chosen_set, practice_sets, practice_set_names)
+      chosen_set.routines.each do |routine|
+        chosen_set.routines.delete(routine) if rtd.name == routine.name
+      end
+
+      routines_in_process.each do |routine|
+        routines_in_process.delete(routine) if rtd.name == routine.name
+      end
+    end
+  end
+
+
+  def practice_routines(chosen_set, practice_sets, practice_set_names)    #TODO add option to not practice/not view/ not rate a routine
     initial_set_size = chosen_set.routines.length
     routines_in_process = chosen_set.routines.clone
 #    chosen_routine = 'something else' #is this line needed?
@@ -219,19 +235,31 @@ class Trainer
 #-----------------------add routine----------------
       if add_routine
         add_routine(chosen_set, routines_in_process, initial_set_size)
-      end
 #-----------------------delete routine----------------
-      if delete_routine
-#        delete_routine(chosen_set)  #TODO integrate routine to delete into PracticeRoutineWidget or create another widget
-      end
+      elsif delete_routine
+        routines_to_delete, quit = DeleteRoutineWidget.run_qt(chosen_set.routines)
+        if quit         #TODO sometimes quit doesn't...
+          puts "quit"
+        elsif routines_to_delete == nil
+          puts "ERROR: routines_to_delete = nil"
+        elsif routines_to_delete == []
+          puts "none"
+          practice_routines(chosen_set, practice_sets, practice_set_names)
+        else
+        puts "routines to delete"
+          routines_to_delete.each do |routine|
+            puts "#{routine.name}"
+          end
+        delete_routine(routines_in_process, chosen_set, routines_to_delete)
+        end
 #-------------------------edit routine---------------------
-      if edit_stats
-        routine = ChooseRoutineWidget.run_qt(chosen_set.routines)
+      elsif edit_stats
+        routine = RoutineToEditWidget.run_qt(chosen_set.routines)
         routine_index = chosen_set.routines.index(routine)
         rip_routine_index = routines_in_process.index(routine)
 
         name, link, priority, practice_count, success_count, last_success_value = EditRoutineWidget.run_qt(routine)
-
+  #TODO test that each new name is unique
         routine.name = name
         routine.link = link
         routine.priority = priority
@@ -242,15 +270,18 @@ class Trainer
         #put it back in the set...
         chosen_set.routines[routine_index] = routine
         routines_in_process[rip_routine_index] = routine
-      end
 #--------------------------???-----------------
-      if chosen_routine == 'none'
+      elsif chosen_routine == 'none'
 puts "chosen = none"
         choose_set_to_practice(practice_sets, practice_set_names)
-      end
-      unless quit
-        practice_routine(chosen_routine)
-        performance_rating, quit =  HowDidYouDoWidget.run_qt #TODO quit
+      elsif quit  #if quit do nothing...
+      else
+#        practice_routine(chosen_routine)
+        performance_rating, quit, launch_file =  HowDidYouDoWidget.run_qt(chosen_routine) #TODO quit
+#    fork do
+#      exec "exit #{chosen_routine.link}"
+#    end
+# exec "exit 0"
         if performance_rating != nil #nil = not practiced
           if practice_success?(chosen_routine, performance_rating/2)
             chosen_routine.index_success_counts
@@ -260,11 +291,12 @@ puts "chosen = none"
           chosen_routine.index_practice_counts(chosen_set.num_practices)
           routines_in_process.delete(chosen_routine)
         end
-      end
-    end
+      end #265
+    end #218
+
     if routines_in_process.length < initial_set_size
       chosen_set.num_practices +=1
-    end
+    end #281
     #session count is a better name for set practice count
     #TODO return chosen set, none?
   end

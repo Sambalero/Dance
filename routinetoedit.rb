@@ -1,7 +1,7 @@
 require 'Qt4'
+#TODO rename to RoutineToEditWidget and routinetoedit.rb
 
-
-class ChooseRoutineWidget < Qt::Widget
+class RoutineToEditWidget < Qt::Widget
 
 
     attr_accessor :chosen_routine, :routines
@@ -30,7 +30,7 @@ class ChooseRoutineWidget < Qt::Widget
     end
 
     def init_ui()
-  #the done button isn't showing, but probably isn't needed, either
+  #fixed?? the done button isn't showing, but probably isn't needed, either
        @done_button = Qt::PushButton.new self
        @done_button.setText "OK"
        connect(@done_button, SIGNAL('clicked()')) { $qApp.quit}
@@ -67,7 +67,7 @@ class ChooseRoutineWidget < Qt::Widget
 
 def self.run_qt(routines)
 app = Qt::Application.new ARGV
-choose_routine = ChooseRoutineWidget.new
+choose_routine = RoutineToEditWidget.new
 choose_routine.routines = routines
 choose_routine.init_ui
 app.exec
