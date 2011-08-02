@@ -1,7 +1,7 @@
 require 'csv'
 
 FILENAME = 'practice1.csv'
-ROUTINELENGTH = 8
+ROUTINELENGTH = 9
 SETDATALENGTH = 3
 
 
@@ -83,6 +83,7 @@ module Marshaller
           :success_count => array.shift,
           :last_routines_practice_count => array.shift,
           :last_success_value => array.shift,
+          :last_date_practiced => array.shift,
           :score => array.shift })
   end
 
@@ -95,7 +96,7 @@ module Marshaller
   end
 
   def header_row #called by unmarshal
-    row = ["Routine Name","Location","Priority","Practice Count","Success Count","Set Practice Count at Last Practice","Last Attempt Successful?", "Score"]
+    row = ["Routine Name","Location","Priority","Practice Count","Success Count","Set Practice Count at Last Practice","Last Attempt Successful?", "Last Date Practiced", "Score"]
   end
 
   def write_set_data(array, set)#called by unmarshal
@@ -113,6 +114,7 @@ module Marshaller
         row.push(routine.success_count)
         row.push(routine.last_routines_practice_count)
         row.push(routine.last_success_value)
+        row.push(routine.last_date_practiced)
         row.push(routine.score)
         return row
   end

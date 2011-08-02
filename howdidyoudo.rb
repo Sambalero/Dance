@@ -87,8 +87,12 @@ class HowDidYouDoWidget < Qt::Widget
   end
 
   def launch_routine_file #called by init_ui
-    fork do       #maybe this wants to be spawn?
+    if /text/ =~ routine.link
+     #show message
+    else
+      fork do       #maybe this wants to be spawn?
       exec "open #{routine.link}"
+      end
     end
   end
 
