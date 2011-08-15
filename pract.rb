@@ -50,7 +50,10 @@
 #TODO confirm: does add routine update the set routine count?
 #TODO define success ranking and add descriptor to widget
 #TODO confirm: does add set update the number of sets count?
-#
+#TODO clean up variable scope in widgets
+#TODO numeric entries in edit routine need to be sliders, plus show new values
+#TODO add info box to addroutine, editroutine
+#TODO reorder method definitions
 #Keith's suggestions
 #	consider getting rapid gui development with qt ruby by pragmatic press
 #	may be available fromdemonoid
@@ -154,7 +157,7 @@ class Trainer
   include Marshaller
 ####  include widgets
 
-	def main #called from file
+	def main #called at startup
 		practice_sets = []
 		if File.exist? FILENAME
       practice_sets, practice_set_names = marshal
@@ -166,7 +169,7 @@ class Trainer
 		end
 	end
 
-  def at_exit(exit_code, practice_sets = [])  #### confirm appropriate exit codes
+  def at_exit(exit_code, practice_sets = [])  #### confirm appropriate exit codes  called by
     puts "Goodbye."
     if exit_code == 1
       write_practice_sets practice_sets
@@ -174,45 +177,83 @@ class Trainer
     exit
   end
 
-  def add_set(new_set_name, practice_sets, practice_set_names)
-      new_routines = []                #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO#
-      #new_routine_name = AddRoutineWidget.run_qt   #TODO: add routine option at choose routine goes straigth to edit routine, accepts blank; add routine widget is not very functional.
-      #new_routine = add_routine(      )
-      #new_routines.push(new_routine)
+  def add_set(new_set_name, practice_sets, practice_set_names) #called by new set
+    new_routines = []
+    MessageBoxWidget.run_qt("Your set needs at least one routine in it")
+    new_routine = call_new_routine_widget
+    if new_routine == "back"
+      choose_set_to_practice(practice_sets, practice_set_names)
+    elsif new_routine == "quit"
+        at_exit(0)    #TODO: can we get here with stuff to save? to not save? how do we know? should we do intermediary writes? check back buttons....
+    else #TODO: confirm new_routine is a routine object
+      new_routines.push(new_routine)
       new_set = PracticeSet.new(new_set_name, 0, new_routines)
-
-      practice_sets.push(new_set)
+      practice_sets.push(new_set)  #Do I need to index a set_count somewhere?
       practice_set_names.push(new_set_name)
-      add_set = false
-puts "line 185"
-      choose_set_to_practice(practice_sets, practice_set_names) #TODO: added set shows up as nil in practice chosen set...
-
+      add_set = false  #I probably don't need this line
+      choose_set_to_practice(practice_sets, practice_set_names) #TODO: added set shows up as nil in practice chosen set?
+    end
   end
 
-  def new_set(practice_sets, practice_set_names)
-      text, back, quit = AddSetWidget.run_qt
+  def call_new_routine_widget #called by add_set,
+      name_text, link_text, back, quit, priority = AddRoutineWidget.run_qt
       if back
-        choose_set_to_practice(practice_sets, practice_set_names)
+        return "back"
+      elsif quit
+        return "quit"
+      else
+        if (name_text != nil and link_text != nil)
+          new_routine_name = name_text
+          new_routine_link = link text
+            if not (new_routine_name.empty? or new_routine_link.empty?)
+              build_routine(new_routine_name, new_routine_link, priority)
+            else
+              MessageBoxWidget.run_qt("Your routine needs a name plus a link or description.") #recurse
+              call_new_routine_widget
+            end
+        else
+          MessageBoxWidget.run_qt("Your routine needs a name plus a link or description.") #recurse
+          call_new_routine_widget
+        end
       end
-      if quit
-        at_exit(0)    #TODO: can we get here with stuff to save? to not save? how do we know? should we do intermediary writes? check back buttons....
-      end
+      new_routine = build_routine(new_routine_name, new_routine_link, priority)
+      return new_routine
+  end
 
+  def build_routine(new_routine_name, new_routine_link, priority)
+    routine = Routine.new({
+      :name => new_routine_name,
+      :link => new_routine_link,
+      :priority => priority,
+      :practice_count => 0,
+      :success_count => 0,
+      :last_routines_practice_count => 0,
+      :last_success_value => 0.1,
+      :last_date_practiced => Time.now,
+      :score => 0 })
+  end
+
+  def new_set(practice_sets, practice_set_names)          #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO#
+    text, back, quit = AddSetWidget.run_qt
+    if back
+      choose_set_to_practice(practice_sets, practice_set_names)
+    elsif quit
+      at_exit(0)    #TODO: can we get here with stuff to save? to not save? how do we know? should we do intermediary writes? check back buttons....
+    else
       if text != nil
         new_set_name = text
         if not new_set_name.empty?
           add_set(new_set_name, practice_sets, practice_set_names)
         else
-          MessageBoxWidget.run_qt("Your set needs a name") #recurse
-          new_set(practice_sets, practice_set_names)
-        end
-      else
         MessageBoxWidget.run_qt("Your set needs a name") #recurse
         new_set(practice_sets, practice_set_names)
+        end
+      else
+      MessageBoxWidget.run_qt("Your set needs a name") #recurse
+      new_set(practice_sets, practice_set_names)
       end
-
     end
-
+  end
 
   def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed
     chosen_set_name, quit, add_set, delete_set = ChooseSetToPracticeWidget.run_qt(practice_set_names)
@@ -226,19 +267,16 @@ puts "line 185"
 #------------------delete set-----------------------
     if delete_set
       set_to_delete, quit = SetToDeleteWidget.run_qt(practice_set_names)
-puts "quit  = #{quit}"
-puts "set_to_delete = #{set_to_delete}"
       if quit
         at_exit(0)
       elsif set_to_delete == nil
-puts "line 196"
         choose_set_to_practice(practice_sets, practice_set_names)
       else
         practice_sets.each do |set|
           practice_sets.delete(set) if set.name == set_to_delete
         end
       end
-      #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# running through the program... write set to delete
+      #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# running through the program... add back set to delete
     end
 #--------------------practice chosen set-------------------------------
     chosen_set_index = practice_set_names.index(chosen_set_name)   #unless csn = nil, then qad instead
