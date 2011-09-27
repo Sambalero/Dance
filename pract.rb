@@ -43,6 +43,7 @@
 #show message widget - see trainer.new_set
 #add back and quit to AddSetWidget.run_qt
 #TODO develop text option in place of link - see howdidyoudo, editroutine, addroutine
+#TODO priority seems to work backward in original program
 
 #TODO can widget buttons change color or something when clicked?   Also, activate input boxes when button clicked (add routine, add set)
 #TODO add priority, time since practiced to widget
@@ -66,6 +67,8 @@
 #	do same with windows
 #	do sniff to know which and (string match) - use appropriate object
 #
+
+#add note: git test
 
 require_relative 'marshaller'
 require_relative 'addset'
@@ -120,7 +123,7 @@ class Routine
   end
 
   def calc_score(num_practices) #called by practiceSet.sort_routines_by_score
-    times_since_practiced_factor(num_practices) * difficulty_factor * priority_factor * last_time_factor
+    times_since_practiced_factor(num_practices) * difficulty_factor * last_time_factor + @priority
   end
 
   def difficulty_factor #called by calc_score
@@ -131,7 +134,7 @@ class Routine
     1/(num_practices - @last_routines_practice_count + 1)
   end
 
-  def priority_factor #called by calc_score
+  def priority_factor #called by calc_score    #TODO confirm this can be deleted
     @priority == 0 ? 1.0 : 1/@priority
   end
 
@@ -195,8 +198,8 @@ class Trainer
     end
   end
 
-  def call_new_routine_widget #called by add_set,
-      name_text, link_text, back, quit, priority = AddRoutineWidget.run_qt
+  def call_new_routine_widget #called by add_set,  TODO: AddRoutine will add an empty routine.
+      name_text, link_text, back, quit, priority = AddRoutineWidget.run_qt     #TODO:Add info button from EditRoutine to Addroutine, stop using EditRoutine in AddRoutine
       if back
         return "back"
       elsif quit
@@ -262,21 +265,25 @@ class Trainer
     end
 #-------------------add set----------------
     if add_set
-      new_set(new_set_name, practice_sets, practice_set_names)
+      new_set(practice_sets, practice_set_names)
     end
 #------------------delete set-----------------------
     if delete_set
       set_to_delete, quit = SetToDeleteWidget.run_qt(practice_set_names)
+puts "set to delete #{set_to_delete}"     ##### test here
       if quit
         at_exit(0)
       elsif set_to_delete == nil
+    puts "set to delete -nil"
         choose_set_to_practice(practice_sets, practice_set_names)
       else
+puts "set to delete #{set_to_delete}"
         practice_sets.each do |set|
           practice_sets.delete(set) if set.name == set_to_delete
         end
+        practice_set_names.delete(set_to_delete)
+        choose_set_to_practice(practice_sets, practice_set_names)    #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# need to clean these up... something aint right.
       end
-      #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# running through the program... add back set to delete
     end
 #--------------------practice chosen set-------------------------------
     chosen_set_index = practice_set_names.index(chosen_set_name)   #unless csn = nil, then qad instead
@@ -300,7 +307,7 @@ puts "chosen_set_index (pract 206) = #{chosen_set_index}"
           :last_date_practiced => Time.now,
           :score => 0 })
 
-        name, link, priority, practice_count, success_count, last_success_value = EditRoutineWidget.run_qt(routine)
+        name, link, priority, practice_count, success_count, last_success_value = EditRoutineWidget.run_qt(routine) #TODO:Add info button from EditRoutine to Addroutine, stop using EditRoutine in AddRoutine; "launch priority info"  Actually, see http://flylib.com/books/en/2.491.1.168/1/ for a simple text label that would work fine (I think)
 
         routine.name = name
         routine.link = link
@@ -363,7 +370,7 @@ puts "line 261"
         routine_index = chosen_set.routines.index(routine)
         rip_routine_index = routines_in_process.index(routine)
 
-        name, link, priority, practice_count, success_count, last_success_value = EditRoutineWidget.run_qt(routine)
+        name, link, priority, practice_count, success_count, last_success_value = EditRoutineWidget.run_qt(routine)   #TODO move info to widgets
   #TODO test that each new name is unique
         routine.name = name
         routine.link = link
@@ -382,7 +389,7 @@ puts "chosen = none (pract 301)"
       elsif quit  #if quit do nothing...
       else
 #        practice_routine(chosen_routine)
-        performance_rating, quit, launch_file =  HowDidYouDoWidget.run_qt(chosen_routine) #TODO quit
+        performance_rating, quit, launch_file =  HowDidYouDoWidget.run_qt(chosen_routine) #TODO quit TODO if ==10, change priority?
 #    fork do
 #      exec "exit #{chosen_routine.link}"
 #    end

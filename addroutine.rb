@@ -35,48 +35,58 @@ class AddRoutineWidget < Qt::Widget
     @lcd
   end
 
-    def initialize(parent = nil)
-    super(parent)
+  def initialize(parent = nil)
+  super(parent)
 
-        setWindowTitle "ADD A ROUTINE"
+      setWindowTitle "ADD A ROUTINE"
 
-        init_ui
+      init_ui
 
-        resize 200, 150
-        move 300, 300
+      resize 200, 150
+      move 300, 300
 
-        show
-    end  #14
+      show
+  end  #14
 
-    def init_ui
-      @@back = false
-      @@quit = false
-      @@priority = 1
+  def init_ui
+    @@back = false
+    @@quit = false
+    @@priority = 1
 
-        @name_label = Qt::Label.new self    #self here puts the widget in the window
-        @name_label.setText "Enter New Routine Name"
-        @name_label.adjustSize
+    @name_label = Qt::Label.new self    #self here puts the widget in the window
+    @name_label.setText "Enter New Routine Name"   #TODO MAKE EXIT WORK!!!!!!!
+    @name_label.adjustSize
 
-        edit = Qt::LineEdit.new self
-        connect edit, SIGNAL("textChanged(QString)"),
-            self, SLOT("on_changed(QString)")
+    edit = Qt::LineEdit.new self
+    connect edit, SIGNAL("textChanged(QString)"),
+        self, SLOT("on_changed(QString)")
 
+    priorityText = "
+      1: Need to brush up on this one!!!
+      2: New - Want to get this perfect
+      3: New - Want to add this to our repertoire
+      4: Want to review this regularly
+      5: Basics"
 
+    @link_label = Qt::Label.new self
+    @link_label.setText "Type, or Cut and Paste
+    Link, File Path, or Routine Description:"
+    @link_label.adjustSize
 
-        @link_label = Qt::Label.new self    #self here puts the widget in the window
-        @link_label.setText "Cut and Paste, or Type Link, File Path, or Routine Description"
-        @link_label.adjustSize
+    @message = Qt::Label.new(self)
+    @message.setText "Priority: " + priorityText
+    @message.adjustSize
 
     @textedit = Qt::TextEdit.new(self)
     @textedit.setWordWrapMode(Qt::TextOption::WordWrap)
     @textedit.setFont( Qt::Font.new("Times", 24) )
-
     connect(@textedit, SIGNAL('textChanged()'), self, SLOT('theTextChanged()'))
 
     @lcd = Qt::LCDNumber.new(2)
     @lcd.setSegmentStyle(Qt::LCDNumber::Filled)
     @lcd.setPalette(Qt::Palette.new(Qt::Color.new(250, 250, 200)))
     @lcd.setAutoFillBackground(true)
+
     @slider = Qt::Slider.new(Qt::Horizontal, self)
     @slider.setRange(0, 5)
     @slider.setValue(0)
@@ -108,6 +118,7 @@ class AddRoutineWidget < Qt::Widget
     box.addWidget(@priority_label)
     box.addWidget(@slider)
     box.addWidget(@lcd)
+    box.addWidget(@message)
     box.addWidget(@done_button)
     box.addWidget(@back_button)
     box.addWidget(@quit_button)

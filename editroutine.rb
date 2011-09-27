@@ -39,6 +39,14 @@ class EditRoutineWidget < Qt::Widget
     @@last_success_value
   end
 
+  def slider
+    @slider
+  end
+
+  def lcd
+    @lcd
+  end
+
   def initialize()
       super()
 
@@ -59,19 +67,27 @@ class EditRoutineWidget < Qt::Widget
     @@success_count = routine.success_count
     @@last_success_value = routine.last_success_value
 
-    grid = Qt::GridLayout.new()
+    priorityText = "
+      1: Need to brush up on this one!!!
+      2: New - Want to get this perfect
+      3: New
+      4: Want to review this regularly
+      5: Basics"
+
+    grid = Qt::GridLayout.new()   # Here I have the layout info associated with the functional blocks; I think I like the layout grouped separately better.
 
     done_button = Qt::PushButton.new self
     done_button.setText "DONE"
     done_button.resize 30, 20
+    done_button.setPalette( Qt::red )
     grid.addWidget(done_button, 0, 2)
-    connect(done_button, SIGNAL('clicked()')) { $qApp.quit}
+    connect(done_button, SIGNAL('clicked()')) { $qApp.quit}  #need back & exit buttons, too. See info button (commented out below)
 
-    info_button = Qt::PushButton.new self
-    info_button.setText "Info"
-    info_button.resize 30, 20
-    grid.addWidget(info_button, 3, 1)
-    connect(info_button, SIGNAL('clicked()')) {launch_priority_info}
+
+#    info_button.setText "Info"     Save this: it's great!
+#    info_button.resize 30, 20
+#    grid.addWidget(info_button, 3, 1)
+#    connect(info_button, SIGNAL('clicked()')) {launch_priority_info}
 #######################################
     header = Qt::Label.new(self)
     header.setText "Enter the new value in the box."
@@ -83,40 +99,59 @@ class EditRoutineWidget < Qt::Widget
     @edit_name = Qt::LineEdit.new self
     connect @edit_name, SIGNAL("textChanged(QString)"),
             self, SLOT("new_name(QString)")
-    grid.addWidget(name_label, 1, 0)
-    grid.addWidget(@edit_name, 1, 2)
+    grid.addWidget(name_label, 1, 0, 1, 3)
+    grid.addWidget(@edit_name, 2, 0, 1, 3)
 
     link_label = Qt::Label.new(self)
     link_label.setText "Link: #{routine.link}"
     @edit_link = Qt::LineEdit.new self
     connect @edit_link, SIGNAL("textChanged(QString)"),
             self, SLOT("new_link(QString)")
-    grid.addWidget(link_label, 2, 0)
-    grid.addWidget(@edit_link, 2, 2)
+    grid.addWidget(link_label, 3, 0, 1, 3)
+    grid.addWidget(@edit_link, 4, 0, 1, 3)
 
-    priority_label = Qt::Label.new(self)
-    priority_label.setText "Priority: #{routine.priority}"
-    @edit_priority = Qt::LineEdit.new self
-    connect @edit_priority, SIGNAL("textChanged(QString)"),
-            self, SLOT("new_priority(QString)")
-    grid.addWidget(priority_label, 3, 0)
-    grid.addWidget(@edit_priority, 3, 2)
+#    priority_label = Qt::Label.new(self)
+#    priority_label.setText "Priority: #{routine.priority}"
+#    @edit_priority = Qt::LineEdit.new self
+#    connect @edit_priority, SIGNAL("textChanged(QString)"),
+#            self, SLOT("new_priority(QString)")
+#    grid.addWidget(priority_label, 3, 0)
+#    grid.addWidget(@edit_priority, 3, 2)
+
+
+    @lcd = Qt::LCDNumber.new(2)        #-------------NEW STUFF STARTS HERE
+    @lcd.setSegmentStyle(Qt::LCDNumber::Filled)
+    @lcd.setPalette(Qt::Palette.new(Qt::Color.new(250, 250, 200)))
+    @lcd.setAutoFillBackground(true)
+    grid.addWidget(@lcd, 5, 2)
+
+    @slider = Qt::Slider.new(Qt::Horizontal, self)
+    @slider.setRange(0, 5)
+    @slider.setValue(0)
+    connect(@slider, SIGNAL('valueChanged(int)'), @lcd, SLOT('display(int)'))
+    connect(@slider, SIGNAL('valueChanged(int)')) {@@priority = @slider.value}
+    grid.addWidget(@slider, 6, 2)
+
+    @message = Qt::Label.new(self)
+    @message.setText "Set Priority with Slider: " + priorityText
+    @message.adjustSize
+    grid.addWidget(@message, 5, 0, 3, 2)
 
     practice_count_label = Qt::Label.new(self)
     practice_count_label.setText "Times practiced: #{routine.practice_count}"
     @edit_practice_count = Qt::LineEdit.new self
     connect @edit_practice_count, SIGNAL("textChanged(QString)"),
             self, SLOT("new_practice_count(QString)")
-    grid.addWidget(practice_count_label, 4, 0)
-    grid.addWidget(@edit_practice_count, 4, 2)
+    grid.addWidget(practice_count_label, 8, 0)
+    grid.addWidget(@edit_practice_count, 8, 2)
 
     success_count_label = Qt::Label.new(self)
     success_count_label.setText "Successes: #{routine.success_count}"
     @edit_success_count = Qt::LineEdit.new self
     connect @edit_success_count, SIGNAL("textChanged(QString)"),
             self, SLOT("new_success_count(QString)")
-    grid.addWidget(success_count_label, 5, 0)
-    grid.addWidget(@edit_success_count, 5, 2)
+    grid.addWidget(success_count_label, 9, 0)
+    grid.addWidget(@edit_success_count, 9, 2)
 
     last_success_value_label = Qt::Label.new(self)
       success = routine.last_success_value == 0.1 ? "No" : "Yes"
@@ -124,15 +159,8 @@ class EditRoutineWidget < Qt::Widget
     @edit_last_success_value = Qt::LineEdit.new self
     connect @edit_last_success_value, SIGNAL("textChanged(QString)"),
             self, SLOT("new_last_success_value(QString)")
-    grid.addWidget(last_success_value_label, 6, 0)
-    grid.addWidget(@edit_last_success_value, 6, 2)
-
-    score_label = Qt::Label.new(self)
-    score_label.setText "Score: #{routine.score}"
-    score_label2 = Qt::Label.new(self)
-    score_label2.setText "Your score is recalculated by the program with each practice."
-    grid.addWidget(score_label, 7, 0)
-    grid.addWidget(score_label2, 7, 2)
+    grid.addWidget(last_success_value_label, 10, 0)
+    grid.addWidget(@edit_last_success_value, 10, 2)
 
     setLayout(grid)
 
@@ -158,14 +186,14 @@ class EditRoutineWidget < Qt::Widget
     end
   end
 
-    def new_priority text
-    if text != nil
-      priority = text.strip
-      if (not priority.empty?) and is_numeric?(priority)
-        @@priority = @edit_priority.text.to_f
-      end
-    end
-  end
+#    def new_priority text
+#    if text != nil
+#      priority = text.strip
+#      if (not priority.empty?) and is_numeric?(priority)
+#        @@priority = @edit_priority.text.to_f
+#      end
+#    end
+#  end
 
     def new_practice_count text
     if text != nil

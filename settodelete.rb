@@ -41,7 +41,7 @@ class SetToDeleteWidget < Qt::Widget
   def init_ui()
 
     @@quit = false
-    @@set_to_delete = nil
+    @set_to_delete = nil
 
     grid = Qt::GridLayout.new()
 
@@ -64,7 +64,7 @@ class SetToDeleteWidget < Qt::Widget
     grid.addWidget(quit_button, i+1, 0)
 
     back_button = Qt::PushButton.new 'BACK'
-    connect(done_button, SIGNAL('clicked()')) {
+    connect(back_button, SIGNAL('clicked()')) {
       @set_to_delete = nil
       $qApp.quit}                     #what's up with this not working?
     grid.addWidget(back_button, i+2, 0)   #
