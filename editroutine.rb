@@ -47,6 +47,18 @@ class EditRoutineWidget < Qt::Widget
     @lcd
   end
 
+  def self.back
+    @@back
+  end
+
+  def self.quit
+    @@quit
+  end
+
+  def self.done
+    @@done
+  end
+
   def initialize()
       super()
 
@@ -66,6 +78,9 @@ class EditRoutineWidget < Qt::Widget
     @@practice_count = routine.practice_count
     @@success_count = routine.success_count
     @@last_success_value = routine.last_success_value
+    @@back = false
+    @@done = false
+    @@quit = false
 
     priorityText = "
       1: Need to brush up on this one!!!
@@ -76,12 +91,6 @@ class EditRoutineWidget < Qt::Widget
 
     grid = Qt::GridLayout.new()   # Here I have the layout info associated with the functional blocks; I think I like the layout grouped separately better.
 
-    done_button = Qt::PushButton.new self
-    done_button.setText "DONE"
-    done_button.resize 30, 20
-    done_button.setPalette( Qt::red )
-    grid.addWidget(done_button, 0, 2)
-    connect(done_button, SIGNAL('clicked()')) { $qApp.quit}  #need back & exit buttons, too. See info button (commented out below)
 
 
 #    info_button.setText "Info"     Save this: it's great!
@@ -92,7 +101,7 @@ class EditRoutineWidget < Qt::Widget
     header = Qt::Label.new(self)
     header.setText "Enter the new value in the box."
     header.setFont(Qt::Font.new('Times', 14, Qt::Font::Bold))
-    grid.addWidget(header, 0, 0)    #span columns
+    grid.addWidget(header, 0, 0, 1, 3)
 
     name_label = Qt::Label.new(self)
     name_label.setText "Name: #{routine.name}"
@@ -133,7 +142,7 @@ class EditRoutineWidget < Qt::Widget
     grid.addWidget(@slider, 6, 2)
 
     @message = Qt::Label.new(self)
-    @message.setText "Set Priority with Slider: " + priorityText
+    @message.setText "Set Priority with Slider: (Curent Value: "  + @@priority.to_s + ")" + priorityText
     @message.adjustSize
     grid.addWidget(@message, 5, 0, 3, 2)
 
@@ -161,6 +170,28 @@ class EditRoutineWidget < Qt::Widget
             self, SLOT("new_last_success_value(QString)")
     grid.addWidget(last_success_value_label, 10, 0)
     grid.addWidget(@edit_last_success_value, 10, 2)
+
+    back_button = Qt::PushButton.new self
+    back_button.setText "BACK"
+    back_button.resize 30, 20
+    grid.addWidget(back_button, 11, 0)
+    connect(back_button, SIGNAL('clicked()')) { $qApp.quit
+      @@back = true }  #need back & exit buttons, too. See info button (commented out below)
+
+    exit_button = Qt::PushButton.new self
+    exit_button.setText "EXIT PROGRAM"
+    exit_button.resize 30, 20
+    grid.addWidget(exit_button, 11, 1)
+    connect(exit_button, SIGNAL('clicked()')) { $qApp.quit
+      @@quit = true }  #need back & exit buttons, too. See info button (commented out below)
+
+    done_button = Qt::PushButton.new self
+    done_button.setText "OK"
+    done_button.resize 30, 20
+#    done_button.setPalette( Qt::red )
+    grid.addWidget(done_button, 11, 2)
+    connect(done_button, SIGNAL('clicked()')) { $qApp.quit
+      @@done = true }  #need back & exit buttons, too. See info button (commented out below)
 
     setLayout(grid)
 
@@ -241,7 +272,8 @@ class EditRoutineWidget < Qt::Widget
 #    edit_routine.last_success_value = routine.last_success_value
     edit_routine.init_ui
     app.exec
-    return nombre, link, priority, practice_count, success_count, last_success_value
+    puts "done - er 275"
+    return nombre, link, priority, practice_count, success_count, last_success_value, back, done, quit
   end
 end
 

@@ -307,13 +307,20 @@ puts "chosen_set_index (pract 206) = #{chosen_set_index}"
           :last_date_practiced => Time.now,
           :score => 0 })
 
-        name, link, priority, practice_count, success_count, last_success_value = EditRoutineWidget.run_qt(routine) #TODO:Add info button from EditRoutine to Addroutine, stop using EditRoutine in AddRoutine; "launch priority info"  Actually, see http://flylib.com/books/en/2.491.1.168/1/ for a simple text label that would work fine (I think)
+        name, link, priority, practice_count, success_count, last_success_value, back, done, quit = EditRoutineWidget.run_qt(routine) #TODO: stop using EditRoutine in AddRoutine
+        if done
 
-        routine.name = name
-        routine.link = link
-        routine.priority = priority
-        routine.practice_count = practice_count
-        routine.success_count = success_count
+          routine.name = name
+          routine.link = link
+          routine.priority = priority
+          routine.practice_count = practice_count
+          routine.success_count = success_count
+
+        elsif quit #????
+        elsif back #do nothing
+        else
+          puts "Error in AddRoutine, EditRoutine"
+        end
 
         chosen_set.routines.push(routine)
         routines_in_process.push(routine) if routines_in_process != nil
@@ -370,18 +377,25 @@ puts "line 261"
         routine_index = chosen_set.routines.index(routine)
         rip_routine_index = routines_in_process.index(routine)
 
-        name, link, priority, practice_count, success_count, last_success_value = EditRoutineWidget.run_qt(routine)   #TODO move info to widgets
+        name, link, priority, practice_count, success_count, last_success_value, back, done, quit = EditRoutineWidget.run_qt(routine)   #TODO move info to widgets
   #TODO test that each new name is unique
-        routine.name = name
-        routine.link = link
-        routine.priority = priority
-        routine.practice_count = practice_count
-        routine.success_count = success_count
-        routine.last_success_value = last_success_value
+        if done
+        puts "done p 383"
+          routine.name = name
+          routine.link = link
+          routine.priority = priority
+          routine.practice_count = practice_count
+          routine.success_count = success_count
+          routine.last_success_value = last_success_value
 
-        #put it back in the set...
-        chosen_set.routines[routine_index] = routine
-        routines_in_process[rip_routine_index] = routine
+          #put it back in the set...
+          chosen_set.routines[routine_index] = routine
+          routines_in_process[rip_routine_index] = routine
+        elsif back # do nothing - handled later
+        elsif quit # do nothing - handled later
+        else
+          puts "Error in EditRoutine"
+        end
 #--------------------------???-----------------
       elsif chosen_routine == 'none'
 puts "chosen = none (pract 301)"
