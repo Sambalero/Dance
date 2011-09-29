@@ -386,8 +386,11 @@ puts "line 261"
           routine.priority = priority
           routine.practice_count = practice_count
           routine.success_count = success_count
-          routine.last_success_value = last_success_value
-
+          if last_success_value
+           routine.last_success_value = (routine.last_success_value ==  0.1 ? 1 : 0.1)
+          end
+          #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO#
+   #TODO change last success value to a button in widget
           #put it back in the set...
           chosen_set.routines[routine_index] = routine
           routines_in_process[rip_routine_index] = routine

@@ -165,11 +165,12 @@ class EditRoutineWidget < Qt::Widget
     last_success_value_label = Qt::Label.new(self)
       success = routine.last_success_value == 0.1 ? "No" : "Yes"
     last_success_value_label.setText "Last practice successful? #{success}"
-    @edit_last_success_value = Qt::LineEdit.new self
-    connect @edit_last_success_value, SIGNAL("textChanged(QString)"),
-            self, SLOT("new_last_success_value(QString)")
+    last_success_button = Qt::PushButton.new self
+    last_success_button.setText "CHANGE"
+    last_success_button.resize 30, 20
+    connect(last_success_button, SIGNAL('clicked()')) { @@last_success_value = true }
     grid.addWidget(last_success_value_label, 10, 0)
-    grid.addWidget(@edit_last_success_value, 10, 2)
+    grid.addWidget(last_success_button, 10, 2)
 
     back_button = Qt::PushButton.new self
     back_button.setText "BACK"
@@ -244,20 +245,12 @@ class EditRoutineWidget < Qt::Widget
     end
   end
 
-    def new_last_success_value text
-    if text != nil
-      last_success_value = text.strip
-      if (not last_success_value.empty?) and  is_numeric?(last_success_value)
-        @@last_success_value = @edit_last_success_value.text.to_f
-      end
-    end
-  end
 
-  def launch_priority_info #called by init_ui
-    fork do       #maybe this wants to be spawn?
-      exec "open ~/prog/pract/practfiles/Priority.rtf"
-    end
-  end
+#  def launch_priority_info #called by init_ui
+#    fork do       #maybe this wants to be spawn?
+#      exec "open ~/prog/pract/practfiles/Priority.rtf"
+#    end
+#  end
 
 
   def self.run_qt(routine)
@@ -272,7 +265,6 @@ class EditRoutineWidget < Qt::Widget
 #    edit_routine.last_success_value = routine.last_success_value
     edit_routine.init_ui
     app.exec
-    puts "done - er 275"
     return nombre, link, priority, practice_count, success_count, last_success_value, back, done, quit
   end
 end
