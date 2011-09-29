@@ -295,7 +295,8 @@ puts "chosen_set_index (pract 206) = #{chosen_set_index}"
   end
 
   def add_routine(chosen_set, routines_in_process = nil, initial_set_size = nil) #called by practice_routines, choose_set_to_practice
-    new_routine_name = AddRoutineWidget.run_qt
+     name, link, back, quit,  priority, done = AddRoutineWidget.run_qt
+        if done
         routine = Routine.new({
           :name => "",
           :link => "",
@@ -306,9 +307,6 @@ puts "chosen_set_index (pract 206) = #{chosen_set_index}"
           :last_success_value => 0.1,
           :last_date_practiced => Time.now,
           :score => 0 })
-
-        name, link, priority, practice_count, success_count, last_success_value, back, done, quit = EditRoutineWidget.run_qt(routine) #TODO: stop using EditRoutine in AddRoutine
-        if done
 
           routine.name = name
           routine.link = link
@@ -325,7 +323,7 @@ puts "chosen_set_index (pract 206) = #{chosen_set_index}"
         chosen_set.routines.push(routine)
         routines_in_process.push(routine) if routines_in_process != nil
 
-        intitial_set_size += 1 if intitial_set_size != nil
+        initial_set_size += 1 if initial_set_size != nil
   end
 
   def delete_routine(routines_in_process, chosen_set, routines_to_delete)
