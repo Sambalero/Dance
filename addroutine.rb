@@ -9,23 +9,27 @@ class AddRoutineWidget < Qt::Widget
 
     def self.new_routine_name
       @new_routine_name
-    end  #10
+    end
 
     def self.new_routine_link
       @new_routine_link
-    end  #10
+    end
+
+    def self.done
+      @@done
+    end
 
     def self.quit
       @@quit
-    end  #10
+    end
 
     def self.back
       @@back
-    end  #10
+    end
 
     def self.priority
       @@priority
-    end  #10
+    end
 
   def slider
     @slider
@@ -49,6 +53,7 @@ class AddRoutineWidget < Qt::Widget
   end  #14
 
   def init_ui
+    @@done = false
     @@back = false
     @@quit = false
     @@priority = 1
@@ -100,7 +105,7 @@ class AddRoutineWidget < Qt::Widget
             #  http://flylib.com/books/en/2.491.1.168/1/
        @done_button = Qt::PushButton.new self
        @done_button.setText "OK"
-       connect(@done_button, SIGNAL('clicked()')) { $qApp.quit}
+       connect(@done_button, SIGNAL('clicked()')) { @@done = true, $qApp.quit}
 
        @back_button = Qt::PushButton.new self
        @back_button.setText "BACK"
@@ -141,7 +146,7 @@ class AddRoutineWidget < Qt::Widget
     app = Qt::Application.new ARGV
     add_routine = AddRoutineWidget.new
     app.exec
-    return add_routine.new_routine_name, add_routine.new_routine_link, back, quit,  priority
+    return add_routine.new_routine_name, add_routine.new_routine_link, back, quit, priority, done
   end
 end
 

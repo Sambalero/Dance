@@ -39,7 +39,6 @@
 #ADD TIME SINCE PRACTICED TO STATS
 #CHANGE FILE PRACTICEROUTINE TO choioseROUTINETOPRACTICE, practiceset to choosesettopractice
 #CREATE PRACTFILE LOCATION AS GLOBAL VARIABLE
-#write/rewrite addset, addroutine
 #show message widget - see trainer.new_set
 #add back and quit to AddSetWidget.run_qt
 #TODO develop text option in place of link - see howdidyoudo, editroutine, addroutine
