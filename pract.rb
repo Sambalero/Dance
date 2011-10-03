@@ -35,23 +35,14 @@
 ####Todo track camera usage?
 
 ################TODO*****IN PROCESS*****TODO#################   test, addroutine
-#ADD DATE LAST PRACTICED TO ROUTINE
-#ADD TIME SINCE PRACTICED TO STATS
-#CHANGE FILE PRACTICEROUTINE TO choioseROUTINETOPRACTICE, practiceset to choosesettopractice
 #CREATE PRACTFILE LOCATION AS GLOBAL VARIABLE
 #show message widget - see trainer.new_set  TODO !!!!!! Does this work???
 #TODO develop text option in place of link - see howdidyoudo, editroutine, addroutine
-#TODO priority seems to work backward in original program
-
 #TODO can widget buttons change color or something when clicked?   Also, activate input boxes when button clicked (add routine, add set)
-#TODO add priority, time since practiced to widget
-#TODO define priorities and add descriptor to widget
 #TODO confirm: does add routine update the set routine count?
 #TODO define success ranking and add descriptor to widget
 #TODO confirm: does add set update the number of sets count?
 #TODO clean up variable scope in widgets
-#TODO numeric entries in edit routine need to be sliders, plus show new values
-#TODO add info box to addroutine, editroutine
 #TODO reorder method definitions
 #Keith's suggestions
 #	consider getting rapid gui development with qt ruby by pragmatic press
@@ -180,7 +171,8 @@ class Trainer
 
   def add_set(new_set_name, practice_sets, practice_set_names) #called by new set
     new_routines = []
-    MessageBoxWidget.run_qt("Your set needs at least one routine in it")
+    message = "Your set needs at least one routine in it"
+    MessageBoxWidget.run_qt(message)
     new_routine = call_new_routine_widget
     if new_routine == "back"
       choose_set_to_practice(practice_sets, practice_set_names)
@@ -198,6 +190,7 @@ class Trainer
 
   def call_new_routine_widget #called by add_set,  TODO: AddRoutine will add an empty routine.
       name_text, link_text, back, quit, priority = AddRoutineWidget.run_qt     #TODO:Add info button from EditRoutine to Addroutine, stop using EditRoutine in AddRoutine
+      message =  "Your routine needs a name plus a link or description."
       if back
         return "back"
       elsif quit
@@ -209,11 +202,11 @@ class Trainer
             if not (new_routine_name.empty? or new_routine_link.empty?)
               build_routine(new_routine_name, new_routine_link, priority)
             else
-              MessageBoxWidget.run_qt("Your routine needs a name plus a link or description.") #recurse
+              MessageBoxWidget.run_qt(message) #recurse
               call_new_routine_widget
             end
         else
-          MessageBoxWidget.run_qt("Your routine needs a name plus a link or description.") #recurse
+          MessageBoxWidget.run_qt(message) #recurse
           call_new_routine_widget
         end
       end

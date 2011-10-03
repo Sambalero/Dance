@@ -96,9 +96,6 @@ attr_accessor :chosen_routine, :routines
 
   def init_button(routine)
     since = (Time.now.to_i - routine.last_date_practiced.to_i)/60/24/60
-puts "since = #{since}"
-puts "now = #{Time.now}"
-puts "routine.last_date_practiced = #{routine.last_date_practiced}"
     @routine_button = Qt::PushButton.new routine.name, self
     @routine_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     connect(@routine_button, SIGNAL('clicked()')) {@@chosen_routine = routine

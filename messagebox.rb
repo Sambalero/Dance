@@ -1,6 +1,7 @@
 require 'Qt4'
 class MessageBoxWidget < Qt::Widget
 
+attr_accessor :message
  #the MessageBoxWidget presents a message to the user
   def self.message
     @@message
@@ -19,7 +20,9 @@ class MessageBoxWidget < Qt::Widget
 
     grid = Qt::GridLayout.new()
 
-      grid.addWidget(message, 0, 0)
+
+    @message_label = Qt::Label.new message
+    grid.addWidget(@message_label, 0, 0)
 
     done_button = Qt::PushButton.new 'OK'
     connect(done_button, SIGNAL('clicked()')) {$qApp.quit}
