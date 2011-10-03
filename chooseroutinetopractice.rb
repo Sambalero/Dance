@@ -1,5 +1,5 @@
 require 'Qt4'
-#TODO rename file to chooseroutine.rb after renaming the existing
+require 'time'
 class ChooseRoutineToPracticeWidget < Qt::Widget
  #called by trainer.suggest_routine
 
@@ -7,8 +7,7 @@ class ChooseRoutineToPracticeWidget < Qt::Widget
  # the entire practice set is passed to it.
  # it returns a chosen routine
  # it needs a set-practiced flag  TODO confirm
- #TODO add option to not practice/not view/ not rate a routine (in howdidyoudo?)
-    attr_accessor :chosen_routine, :routines
+attr_accessor :chosen_routine, :routines
 
   def self.add_routine
     @@add_routine
@@ -61,9 +60,7 @@ class ChooseRoutineToPracticeWidget < Qt::Widget
     for routine in routines
       init_button(routine)
       grid.addWidget(@routine_button, i, 0)
-      grid.addWidget(@score_label, i, 1)
-      grid.addWidget(@pract_label, i, 2)
-      grid.addWidget(@succ_label, i, 3)
+      grid.addWidget(@data_label, i, 1, 1, 3)
       i += 1
     end
 
@@ -98,13 +95,17 @@ class ChooseRoutineToPracticeWidget < Qt::Widget
   end
 
   def init_button(routine)
+    since = (Time.now.to_i - routine.last_date_practiced.to_i)/60/24/60
+puts "since = #{since}"
+puts "now = #{Time.now}"
+puts "routine.last_date_practiced = #{routine.last_date_practiced}"
     @routine_button = Qt::PushButton.new routine.name, self
     @routine_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     connect(@routine_button, SIGNAL('clicked()')) {@@chosen_routine = routine
       $qApp.quit}
     @pract_label = Qt::Label.new "#{routine.practice_count} Attempts"
-    @succ_label = Qt::Label.new "#{routine.success_count} Successful"
-    @score_label = Qt::Label.new "Score: #{routine.score.round(2)}"
+    time = Time.parse(routine.last_date_practiced)
+    @data_label = Qt::Label.new "#{routine.practice_count} Attempts, #{routine.success_count} Successful. Score: #{routine.score.round(2)}\nLast Practiced: #{time.strftime( '%x' )}"
   end
 
   def self.run_qt(routines)

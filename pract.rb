@@ -39,8 +39,7 @@
 #ADD TIME SINCE PRACTICED TO STATS
 #CHANGE FILE PRACTICEROUTINE TO choioseROUTINETOPRACTICE, practiceset to choosesettopractice
 #CREATE PRACTFILE LOCATION AS GLOBAL VARIABLE
-#show message widget - see trainer.new_set
-#add back and quit to AddSetWidget.run_qt
+#show message widget - see trainer.new_set  TODO !!!!!! Does this work???
 #TODO develop text option in place of link - see howdidyoudo, editroutine, addroutine
 #TODO priority seems to work backward in original program
 
