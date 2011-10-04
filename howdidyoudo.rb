@@ -83,8 +83,7 @@ class HowDidYouDoWidget < Qt::Widget
     connect(@launch_file_button, SIGNAL('clicked()')) {launch_routine_file}
     connect(@pass_button, SIGNAL('clicked()')) {@@pass = true
       $qApp.quit}
-    connect(@next_routine_button, SIGNAL('clicked()')) {
-      $qApp.quit}
+    connect(@next_routine_button, SIGNAL('clicked()')) {$qApp.quit}
     connect(@slider, SIGNAL('valueChanged(int)'), @lcd, SLOT('display(int)'))
     connect(@slider, SIGNAL('valueChanged(int)')) {@@performance_rating = @slider.value}
 #layout

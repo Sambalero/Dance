@@ -35,7 +35,6 @@
 ####Todo track camera usage?
 
 ################TODO*****IN PROCESS*****TODO#################   test, addroutine
-#show message widget - see trainer.new_set  TODO !!!!!! Does this work???
 #TODO develop text option in place of link - see howdidyoudo, editroutine, addroutine
 #TODO can widget buttons change color or something when clicked?   Also, activate input boxes when button clicked (add routine, add set)
 #TODO confirm: does add routine update the set routine count?
@@ -77,16 +76,16 @@ def is_numeric?(string)
 end
 
 class PracticeSet
-  attr_accessor :name, :num_practices, :routines
+  attr_accessor :name, :session_count, :routines
 
-  def initialize(name, num_practices, routines) #called by marshaller.marshal
+  def initialize(name, session_count, routines) #called by marshaller.marshal
     @name = name
-    @num_practices = num_practices
+    @session_count = session_count
     @routines = routines
   end
 
   def sort_routines_by_score #called by practice and by trainer.main
-    @routines.map { |routine| routine.score = routine.calc_score(@num_practices) }
+    @routines.map { |routine| routine.score = routine.calc_score(@session_count) }
     @routines.sort! { |a, b| a.score <=> b.score }
   end
 
@@ -110,16 +109,16 @@ class Routine
     @score = options[:score]
   end
 
-  def calc_score(num_practices) #called by practiceSet.sort_routines_by_score
-    times_since_practiced_factor(num_practices) * difficulty_factor * last_time_factor + @priority
+  def calc_score(session_count) #called by practiceSet.sort_routines_by_score
+    times_since_practiced_factor(session_count) * difficulty_factor * last_time_factor + @priority
   end
 
   def difficulty_factor #called by calc_score
     @practice_count != 0 ? 0.1+@success_count/@practice_count : 0.1
   end
 
-  def times_since_practiced_factor(num_practices) #called by calc_score
-    1/(num_practices - @last_routines_practice_count + 1)
+  def times_since_practiced_factor(session_count) #called by calc_score
+    1/(session_count - @last_routines_practice_count + 1)
   end
 
   def priority_factor #called by calc_score    #TODO confirm this can be deleted
@@ -130,9 +129,9 @@ class Routine
     @last_success_value == 0 ? 0.1 : 1.0
   end
 
-  def index_practice_counts(num_practices) #called by trainer.suggest_routine
+  def index_practice_counts(session_count) #called by trainer.suggest_routine
     @practice_count += 1
-    @last_routines_practice_count = num_practices
+    @last_routines_practice_count = session_count
   end
 
   def index_success_counts #called by trainer.suggest_routine
@@ -404,7 +403,7 @@ puts "chosen = none (pract 301)"
           else
             chosen_routine.last_success_value = 0.1
           end
-          chosen_routine.index_practice_counts(chosen_set.num_practices)
+          chosen_routine.index_practice_counts(chosen_set.session_count)
           routines_in_process.delete(chosen_routine)
         end
 
@@ -413,7 +412,7 @@ puts "line 321"
     end #218
 
     if routines_in_process.length < initial_set_size
-      chosen_set.num_practices +=1
+      chosen_set.session_count +=1
     end #281
     #session count is a better name for set practice count
     #TODO return chosen set, none?

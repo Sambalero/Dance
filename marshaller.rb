@@ -101,7 +101,7 @@ module Marshaller
 
   def write_set_data(array, set)#called by unmarshal
       array.push(top_row "Name", set.name)
-      array.push(top_row "Number of Practice Sessions", set.num_practices)
+      array.push(top_row "Number of Practice Sessions", set.session_count)
       array.push(top_row "Number of Routines", set.routines.length)
       array.push(header_row)
   end
