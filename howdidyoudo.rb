@@ -3,7 +3,7 @@ require 'Qt4'
 class HowDidYouDoWidget < Qt::Widget
 #called by trainer.suggest_routine
 #TODO close demo window with widget exit
-    attr_accessor :performance_rating
+    attr_accessor :performance_rating, :next_routine
                                                      #is quit actually returned?
   def self.quit
     @@quit
@@ -44,44 +44,58 @@ class HowDidYouDoWidget < Qt::Widget
 
   def init_ui()
 
-    @@performance_rating = nil   #if I initialize this to nil, I can use that value as not practiced.
+    @@performance_rating = 0
     @@quit = false
     @@pass = false
+    @@next_routine = false
 
-    grid = Qt::GridLayout.new()
-
+    rankingsText =
+"      5: Perfect, first time!
+      4: Perfect, after several tries
+      3: Good enough for now
+      2: Need more practice
+      1: Need lots more practice"
+#text
+    @message = Qt::Label.new(self)
+    @message.setText rankingsText
+    @message.adjustSize
+#lcd
     @lcd = Qt::LCDNumber.new(2)
     @lcd.setSegmentStyle(Qt::LCDNumber::Filled)
     @lcd.setPalette(Qt::Palette.new(Qt::Color.new(250, 250, 200)))
     @lcd.setAutoFillBackground(true)
+#slider
     @slider = Qt::Slider.new(Qt::Horizontal, self)
-    @slider.setRange(0, 10)
+    @slider.setRange(0, 5)
     @slider.setValue(0)
-    @next_button = Qt::PushButton.new "NEXT"
-    @next_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
+#buttons
+    @next_routine_button = Qt::PushButton.new "NEXT"
+    @next_routine_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     @launch_file_button = Qt::PushButton.new "SHOW ME"
     @launch_file_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     @pass_button = Qt::PushButton.new "PASS"
     @pass_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     @quit_button = Qt::PushButton.new "EXIT PROGRAM"
     @quit_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
-
+#connections
     connect(@quit_button, SIGNAL('clicked()')) {@@quit = true
       $qApp.quit}
     connect(@launch_file_button, SIGNAL('clicked()')) {launch_routine_file}
-    connect(@pass_button, SIGNAL('clicked()')) {@@pass = true #pass is not used, nor does it have an accessor
+    connect(@pass_button, SIGNAL('clicked()')) {@@pass = true
       $qApp.quit}
-    connect(@next_button, SIGNAL('clicked()')) {@@next = true #next is not used, nor does it have an accessor
+    connect(@next_routine_button, SIGNAL('clicked()')) {
       $qApp.quit}
     connect(@slider, SIGNAL('valueChanged(int)'), @lcd, SLOT('display(int)'))
     connect(@slider, SIGNAL('valueChanged(int)')) {@@performance_rating = @slider.value}
-
-    grid.addWidget(@lcd, 0, 0, 1, 2)
-    grid.addWidget(@slider, 1, 0, 1, 2)
-    grid.addWidget(@next_button, 2, 0)
-    grid.addWidget(@quit_button, 3, 1)
-    grid.addWidget(@launch_file_button, 2, 1)
-    grid.addWidget(@pass_button, 3, 0)
+#layout
+    grid = Qt::GridLayout.new()
+    grid.addWidget(@lcd, 0, 0, 2, 2)
+    grid.addWidget(@slider, 2, 0, 1, 2)
+    grid.addWidget(@message, 3, 0, 1, 2)
+    grid.addWidget(@next_routine_button, 4, 0)
+    grid.addWidget(@launch_file_button, 4, 1)
+    grid.addWidget(@quit_button, 5, 1)
+    grid.addWidget(@pass_button, 5, 0)
     setLayout(grid)
 
   end

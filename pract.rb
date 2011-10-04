@@ -35,7 +35,6 @@
 ####Todo track camera usage?
 
 ################TODO*****IN PROCESS*****TODO#################   test, addroutine
-#CREATE PRACTFILE LOCATION AS GLOBAL VARIABLE
 #show message widget - see trainer.new_set  TODO !!!!!! Does this work???
 #TODO develop text option in place of link - see howdidyoudo, editroutine, addroutine
 #TODO can widget buttons change color or something when clicked?   Also, activate input boxes when button clicked (add routine, add set)
@@ -391,17 +390,16 @@ puts "line 261"
 #--------------------------???-----------------
       elsif chosen_routine == 'none'
 puts "chosen = none (pract 301)"
-        choose_set_to_practice(practice_sets, practice_set_names)  #TODO w
+        choose_set_to_practice(practice_sets, practice_set_names)
       elsif quit  #if quit do nothing...
       else
-#        practice_routine(chosen_routine)
-        performance_rating, quit, launch_file =  HowDidYouDoWidget.run_qt(chosen_routine) #TODO quit TODO if ==10, change priority?
-#    fork do
-#      exec "exit #{chosen_routine.link}"
-#    end
-# exec "exit 0"
-        if performance_rating != nil #nil = not practiced
-          if practice_success?(chosen_routine, performance_rating/2)
+         performance_rating, quit, pass = HowDidYouDoWidget.run_qt(chosen_routine) #TODO if == 5, change priority?
+
+        if (pass or performance_rating == 0)
+          routines_in_process.delete(chosen_routine)
+
+        else
+          if practice_success?(chosen_routine, performance_rating)
             chosen_routine.index_success_counts
           else
             chosen_routine.last_success_value = 0.1
@@ -409,6 +407,7 @@ puts "chosen = none (pract 301)"
           chosen_routine.index_practice_counts(chosen_set.num_practices)
           routines_in_process.delete(chosen_routine)
         end
+
       end #265
 puts "line 321"
     end #218
