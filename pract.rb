@@ -187,7 +187,7 @@ class Trainer
   end
 
   def call_new_routine_widget #called by add_set,  TODO: AddRoutine will add an empty routine.
-      name_text, link_text, back, quit, priority = AddRoutineWidget.run_qt     #TODO:Add info button from EditRoutine to Addroutine, stop using EditRoutine in AddRoutine
+      name_text, link_text, back, quit, priority = AddRoutineWidget.run_qt
       message =  "Your routine needs a name plus a link or description."
       if back
         return "back"
@@ -225,7 +225,7 @@ class Trainer
       :score => 0 })
   end
 
-  def new_set(practice_sets, practice_set_names)          #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO#
+  def new_set(practice_sets, practice_set_names)
     text, back, quit = AddSetWidget.run_qt
     if back
       choose_set_to_practice(practice_sets, practice_set_names)
@@ -247,7 +247,7 @@ class Trainer
     end
   end
 
-  def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed
+  def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed      #TODO: this is way too long
     chosen_set_name, quit, add_set, delete_set = ChooseSetToPracticeWidget.run_qt(practice_set_names)
     if quit
       at_exit(0)
@@ -271,13 +271,13 @@ puts "set to delete #{set_to_delete}"
           practice_sets.delete(set) if set.name == set_to_delete
         end
         practice_set_names.delete(set_to_delete)
-        choose_set_to_practice(practice_sets, practice_set_names)    #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# need to clean these up... something aint right.
+        choose_set_to_practice(practice_sets, practice_set_names)
       end
     end
 #--------------------practice chosen set-------------------------------
-    chosen_set_index = practice_set_names.index(chosen_set_name)   #unless csn = nil, then qad instead
+    chosen_set_index = practice_set_names.index(chosen_set_name)   #TODO:unless csn = nil, then qad instead
 puts "chosen_set_index (pract 206) = #{chosen_set_index}"
-    chosen_set = practice_sets[chosen_set_index]  #TODO: added set shows up as nil here...
+    chosen_set = practice_sets[chosen_set_index]  #TODO: added set shows up as nil here?
     chosen_set.sort_routines_by_score
     practice_routines(chosen_set, practice_sets, practice_set_names)  #TODO move recursion to here? (chg to chosen set =, if none recurse
     chosen_set.sort_routines_by_score
@@ -332,7 +332,6 @@ puts "chosen_set_index (pract 206) = #{chosen_set_index}"
   def practice_routines(chosen_set, practice_sets, practice_set_names) # called by choose_set_to_practice...............
     initial_set_size = chosen_set.routines.length
     routines_in_process = chosen_set.routines.clone
-#    chosen_routine = 'something else' #is this line needed?
     quit = false
     #TODO if none, choose set again
     while routines_in_process != [] and !quit
@@ -344,7 +343,7 @@ puts "line 261"
 #-----------------------delete routine----------------
       elsif delete_routine
         routines_to_delete, quit = DeleteRoutineWidget.run_qt(chosen_set.routines)
-        if quit         #TODO sometimes quit doesn't...
+        if quit         #TODO sometimes quit doesn't?
           puts "quit"
         elsif routines_to_delete == nil
           puts "ERROR: routines_to_delete = nil"
@@ -364,10 +363,9 @@ puts "line 261"
         routine_index = chosen_set.routines.index(routine)
         rip_routine_index = routines_in_process.index(routine)
 
-        name, link, priority, practice_count, success_count, last_success_value, back, done, quit = EditRoutineWidget.run_qt(routine)   #TODO move info to widgets
+        name, link, priority, practice_count, success_count, last_success_value, back, done, quit = EditRoutineWidget.run_qt(routine)
   #TODO test that each new name is unique
         if done
-        puts "done p 383"
           routine.name = name
           routine.link = link
           routine.priority = priority
@@ -388,7 +386,6 @@ puts "line 261"
         end
 #--------------------------???-----------------
       elsif chosen_routine == 'none'
-puts "chosen = none (pract 301)"
         choose_set_to_practice(practice_sets, practice_set_names)
       elsif quit  #if quit do nothing...
       else
@@ -407,16 +404,13 @@ puts "chosen = none (pract 301)"
           routines_in_process.delete(chosen_routine)
         end
 
-      end #265
-puts "line 321"
-    end #218
+      end
+    end
 
     if routines_in_process.length < initial_set_size
       chosen_set.session_count +=1
-    end #281
-    #session count is a better name for set practice count
+    end
     #TODO return chosen set, none?
-puts "line 329"
   end
 
   def practice_success?(routine, response) #called by practice_routines
