@@ -65,7 +65,7 @@ class SetToDeleteWidget < Qt::Widget
 
     back_button = Qt::PushButton.new 'BACK'
     connect(back_button, SIGNAL('clicked()')) {
-      @set_to_delete = nil
+      @@back = true
       $qApp.quit}                     #what's up with this not working?
     grid.addWidget(back_button, i+2, 0)   #
 
@@ -87,7 +87,7 @@ class SetToDeleteWidget < Qt::Widget
     choose_set.practice_set_names = practice_set_names
     choose_set.init_ui
     app.exec
-    return choose_set.set_to_delete, quit
+    return choose_set.set_to_delete, quit, back
   end
 end
 

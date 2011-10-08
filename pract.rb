@@ -35,13 +35,14 @@
 ####Todo track camera usage?
 
 ################TODO*****IN PROCESS*****TODO#################   test, addroutine
+#TODO change exits to follow back through the program and save
 #TODO develop text option in place of link - see howdidyoudo, editroutine, addroutine
 #TODO can widget buttons change color or something when clicked?   Also, activate input boxes when button clicked (add routine, add set)
 #TODO confirm: does add routine update the set routine count?
-#TODO define success ranking and add descriptor to widget
 #TODO confirm: does add set update the number of sets count?
 #TODO clean up variable scope in widgets
 #TODO reorder method definitions
+#TODO set up for second column in chooseroutine, better window positioning
 #Keith's suggestions
 #	consider getting rapid gui development with qt ruby by pragmatic press
 #	may be available fromdemonoid
@@ -56,6 +57,20 @@
 #
 
 #add note: git test
+#Use the URI module distributed with Ruby: ---need require 'uri'  ?
+#   (determine if is url)
+#require 'uri'
+#
+#unless (url =~ URI::regexp).nil?
+#    # Correct URL
+#end
+#
+#File need require 'file'?
+#A File is an abstraction of any file object accessible by the program and is closely associated with class IO File includes the methods of module FileTest as class methods, allowing you to write (for example) File.exist?("foo").
+#
+#exist?(file_name) → true or false
+#exists?(file_name) → true or false
+#Return true if the named file exists.
 
 require_relative 'marshaller'
 require_relative 'addset'
@@ -147,35 +162,51 @@ class Trainer
   include Marshaller
 ####  include widgets
 
-	def main #called at startup
-		practice_sets = []
-		if File.exist? FILENAME
+  def main #called at startup
+    practice_sets = []
+    if File.exist? FILENAME
       practice_sets, practice_set_names = marshal
       choose_set_to_practice(practice_sets, practice_set_names)
-  		puts "That's all for now. Goodbye"
-  		write_practice_sets practice_sets
+      puts "That's all for now. Goodbye" #delete this once all quits are working right
+      write_practice_sets practice_sets
     else
       puts "I can't find your source file. Sorry."
-		end
-	end
-
-  def at_exit(exit_code, practice_sets = [])  #### confirm appropriate exit codes  called by
-    puts "Goodbye."
-    if exit_code == 1
-      write_practice_sets practice_sets
     end
+  end
+
+  def at_exit(practice_sets = [])
+    puts "Goodbye."
+    write_practice_sets practice_sets
     exit
   end
 
-  def add_set(new_set_name, practice_sets, practice_set_names) #called by new set
+  def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed
+    quit = false
+    chosen_set_name, quit, add_set, delete_set = ChooseSetToPracticeWidget.run_qt(practice_set_names)
+    if add_set then practice_sets, practice_set_names, quit = new_set(practice_sets, practice_set_names) end
+    if delete_set then practice_sets, practice_set_names, quit = delete_a_set(practice_sets, practice_set_names) end
+    if quit then at_exit(practice_sets) end
+    practice_chosen_set(practice_sets, practice_set_names, chosen_set_name)
+  end
+
+  def new_set(practice_sets, practice_set_names)
+    text, back, quit = AddSetWidget.run_qt
+    if (text == nil or text == "" or back)
+      choose_set_to_practice(practice_sets, practice_set_names)
+    elsif !quit
+      new_set_name = text
+      add_set(new_set_name, practice_sets, practice_set_names)
+    end
+    return practice_sets, practice_set_names, quit
+  end
+
+  def add_set(new_set_name, practice_sets, practice_set_names) #called by new set #TODO: don't add set without a routine
     new_routines = []
     message = "Your set needs at least one routine in it"
     MessageBoxWidget.run_qt(message)
-    new_routine = call_new_routine_widget
+    new_routine = get_new_routine
     if new_routine == "back"
       choose_set_to_practice(practice_sets, practice_set_names)
-    elsif new_routine == "quit"
-        at_exit(0)    #TODO: can we get here with stuff to save? to not save? how do we know? should we do intermediary writes? check back buttons....
     else #TODO: confirm new_routine is a routine object
       new_routines.push(new_routine)
       new_set = PracticeSet.new(new_set_name, 0, new_routines)
@@ -184,35 +215,55 @@ class Trainer
       add_set = false  #I probably don't need this line
       choose_set_to_practice(practice_sets, practice_set_names) #TODO: added set shows up as nil in practice chosen set?
     end
+#    return practice_sets, practice_set_names, quit
   end
 
-  def call_new_routine_widget #called by add_set,  TODO: AddRoutine will add an empty routine.
-      name_text, link_text, back, quit, priority = AddRoutineWidget.run_qt
-      message =  "Your routine needs a name plus a link or description."
-      if back
-        return "back"
-      elsif quit
-        return "quit"
-      else
-        if (name_text != nil and link_text != nil)
-          new_routine_name = name_text
-          new_routine_link = link text
-            if not (new_routine_name.empty? or new_routine_link.empty?)
-              build_routine(new_routine_name, new_routine_link, priority)
-            else
-              MessageBoxWidget.run_qt(message) #recurse
-              call_new_routine_widget
-            end
+  def delete_a_set(practice_sets, practice_set_names)
+    set_to_delete, quit, back = SetToDeleteWidget.run_qt(practice_set_names)
+    if (set_to_delete == nil or back) then choose_set_to_practice(practice_sets, practice_set_names) end
+    practice_sets.each do |set|
+      practice_sets.delete(set) if set.name == set_to_delete
+    end
+    practice_set_names.delete(set_to_delete)
+    choose_set_to_practice(practice_sets, practice_set_names)
+    return practice_sets, practice_set_names, quit
+  end
+
+  def practice_chosen_set(practice_sets, practice_set_names, chosen_set_name)
+    chosen_set_index = practice_set_names.index(chosen_set_name)
+    chosen_set = practice_sets[chosen_set_index]
+    chosen_set.sort_routines_by_score
+    practice_routines(chosen_set, practice_sets, practice_set_names)  #TODO move recursion to here? (chg to chosen set =, if none recurse
+  end
+
+ #TODO: #TODO: #TODO: #TODO: #TODO: #TODO: #TODO: #TODO: #TODO: #TODO: #TODO:combine with addroutine below, improve.
+  def get_new_routine #called by add_set,  TODO: AddRoutine will add an empty routine.
+    name_text, link_text, back, quit, priority = AddRoutineWidget.run_qt
+    if quit then at_exit(0) end  #TODO: create saveatexit variable
+    if back then return "back" end
+    new_routine_name, new_routine_link, priority = check_new_routine_values(name_text, link_text, priority)
+    new_routine = build_routine(new_routine_name, new_routine_link, priority)
+    return new_routine
+  end
+
+  def check_new_routine_values(name_text, link_text, priority) #called by  get_new_routine
+    message =  "Your routine needs a name plus a link or description."
+    if (name_text != nil and link_text != nil)
+      new_routine_name = name_text
+      new_routine_link = link_text
+        if not (new_routine_name.empty? or new_routine_link.empty?)
+          build_routine(new_routine_name, new_routine_link, priority)
         else
-          MessageBoxWidget.run_qt(message) #recurse
-          call_new_routine_widget
+          MessageBoxWidget.run_qt(message) #recurse   if it has a name or a link, send that to addroutinewidget
+          get_new_routine
         end
-      end
-      new_routine = build_routine(new_routine_name, new_routine_link, priority)
-      return new_routine
+    else
+      MessageBoxWidget.run_qt(message) #recurse
+      get_new_routine
+    end
   end
 
-  def build_routine(new_routine_name, new_routine_link, priority)
+  def build_routine(new_routine_name = "", new_routine_link = "", priority = 1)  #?""
     routine = Routine.new({
       :name => new_routine_name,
       :link => new_routine_link,
@@ -225,84 +276,10 @@ class Trainer
       :score => 0 })
   end
 
-  def new_set(practice_sets, practice_set_names)
-    text, back, quit = AddSetWidget.run_qt
-    if back
-      choose_set_to_practice(practice_sets, practice_set_names)
-    elsif quit
-      at_exit(0)    #TODO: can we get here with stuff to save? to not save? how do we know? should we do intermediary writes? check back buttons....
-    else
-      if text != nil
-        new_set_name = text
-        if not new_set_name.empty?
-          add_set(new_set_name, practice_sets, practice_set_names)
-        else
-        MessageBoxWidget.run_qt("Your set needs a name") #recurse
-        new_set(practice_sets, practice_set_names)
-        end
-      else
-      MessageBoxWidget.run_qt("Your set needs a name") #recurse
-      new_set(practice_sets, practice_set_names)
-      end
-    end
-  end
-
-  def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed      #TODO: this is way too long
-    chosen_set_name, quit, add_set, delete_set = ChooseSetToPracticeWidget.run_qt(practice_set_names)
-    if quit
-      at_exit(0)
-    end
-#-------------------add set----------------
-    if add_set
-      new_set(practice_sets, practice_set_names)
-    end
-#------------------delete set-----------------------
-    if delete_set
-      set_to_delete, quit = SetToDeleteWidget.run_qt(practice_set_names)
-puts "set to delete #{set_to_delete}"     ##### test here
-      if quit
-        at_exit(0)
-      elsif set_to_delete == nil
-    puts "set to delete -nil"
-        choose_set_to_practice(practice_sets, practice_set_names)
-      else
-puts "set to delete #{set_to_delete}"
-        practice_sets.each do |set|
-          practice_sets.delete(set) if set.name == set_to_delete
-        end
-        practice_set_names.delete(set_to_delete)
-        choose_set_to_practice(practice_sets, practice_set_names)
-      end
-    end
-#--------------------practice chosen set-------------------------------
-    chosen_set_index = practice_set_names.index(chosen_set_name)   #TODO:unless csn = nil, then qad instead
-puts "chosen_set_index (pract 206) = #{chosen_set_index}"
-    chosen_set = practice_sets[chosen_set_index]  #TODO: added set shows up as nil here?
-    chosen_set.sort_routines_by_score
-    practice_routines(chosen_set, practice_sets, practice_set_names)  #TODO move recursion to here? (chg to chosen set =, if none recurse
-    chosen_set.sort_routines_by_score
-  end
-
   def add_routine(chosen_set, routines_in_process = nil, initial_set_size = nil) #called by practice_routines, choose_set_to_practice
-     name, link, back, quit,  priority, done = AddRoutineWidget.run_qt
+     name, link, back, quit,  priority, done = AddRoutineWidget.run_qt   #TODO can we combine with the add routine stuff above?
         if done
-        routine = Routine.new({
-          :name => "",
-          :link => "",
-          :priority => 0,
-          :practice_count => 0,
-          :success_count => 0,
-          :last_routines_practice_count => 0,
-          :last_success_value => 0.1,
-          :last_date_practiced => Time.now,
-          :score => 0 })
-
-          routine.name = name
-          routine.link = link
-          routine.priority = priority
-          routine.practice_count = practice_count
-          routine.success_count = success_count
-
+          build_routine(name, link, priority)
         elsif quit #????
         elsif back #do nothing
         else
