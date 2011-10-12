@@ -245,10 +245,13 @@ puts "new routine: #{new_routine}"
   end
 
   def get_new_routine # called by add_a_set    #########################################################################
-    name, link, back, quit, priority = AddRoutineWidget.run_qt
-    if quit then return "quit" end
-puts "back 250: #{back}"
-    if back then return "back" end
+    name, link, status, priority = AddRoutineWidget.run_qt
+    if status == "quit" then return "quit" end
+puts "back 250: #{status}"
+    if status == "back" then
+    puts "in block"
+    return "back"
+    end
     if valid_name(name) and valid_link(link)
       routine = build_routine(name, link, priority)
     else

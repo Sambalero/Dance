@@ -15,8 +15,8 @@ class AddRoutineWidget < Qt::Widget
       @new_routine_link
     end
 
-    def self.done
-      @@done
+    def self.status
+      @@status
     end
 
     def self.quit
@@ -53,7 +53,7 @@ class AddRoutineWidget < Qt::Widget
   end  #14
 
   def init_ui
-    @@done = false
+    @@status = ""
     @@back = false
     @@quit = false
     @@priority = 1
@@ -105,15 +105,18 @@ class AddRoutineWidget < Qt::Widget
             #  http://flylib.com/books/en/2.491.1.168/1/
        @done_button = Qt::PushButton.new self
        @done_button.setText "OK"
-       connect(@done_button, SIGNAL('clicked()')) { @@done = true, $qApp.quit}
+       connect(@done_button, SIGNAL('clicked()')) { @@status = "done"
+        $qApp.quit}
 
        @back_button = Qt::PushButton.new self
        @back_button.setText "BACK"
-       connect(@back_button, SIGNAL('clicked()')) {@@back = true, $qApp.quit}
+       connect(@back_button, SIGNAL('clicked()')) {@@status = "back"
+        $qApp.quit}
 
        @quit_button = Qt::PushButton.new self
        @quit_button.setText "Exit Program"
-       connect(@quit_button, SIGNAL('clicked()')) {@@quit = true, $qApp.quit}
+       connect(@quit_button, SIGNAL('clicked()')) {@@status = "quit"
+        $qApp.quit}
 
        box = Qt::VBoxLayout.new
     box.addWidget(@name_label)
@@ -146,7 +149,7 @@ class AddRoutineWidget < Qt::Widget
     app = Qt::Application.new ARGV
     add_routine = AddRoutineWidget.new
     app.exec
-    return add_routine.new_routine_name, add_routine.new_routine_link, back, quit, priority, done
+    return add_routine.new_routine_name, add_routine.new_routine_link, status, priority
   end
 end
 
