@@ -41,6 +41,7 @@ class SetToDeleteWidget < Qt::Widget
   def init_ui()
 
     @@quit = false
+    @@back = false
     @set_to_delete = nil
 
     grid = Qt::GridLayout.new()

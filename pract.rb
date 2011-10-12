@@ -180,42 +180,50 @@ class Trainer
     exit
   end
 
-  def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed
+  def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed via new_set, add_a_set
     quit = false
     chosen_set_name, quit, add_set, delete_set = ChooseSetToPracticeWidget.run_qt(practice_set_names)
-    if add_set then practice_sets, practice_set_names, quit = new_set(practice_sets, practice_set_names) end
-    if delete_set then practice_sets, practice_set_names, quit = delete_a_set(practice_sets, practice_set_names) end
+    if add_set then quit = new_set(practice_sets, practice_set_names) end
+    if delete_set then quit = delete_a_set(practice_sets, practice_set_names) end
     if quit then at_exit(practice_sets) end
     practice_chosen_set(practice_sets, practice_set_names, chosen_set_name)
   end
 
-  def new_set(practice_sets, practice_set_names)
+  def new_set(practice_sets, practice_set_names) #called by choose_set_to_practice
+    quit = false
     text, back, quit = AddSetWidget.run_qt
-    if (text == nil or text == "" or back)
-      choose_set_to_practice(practice_sets, practice_set_names)
-    elsif !quit
+    if back then choose_set_to_practice(practice_sets, practice_set_names) end # why not simply return
+    if quit then at_exit(practice_sets) end
+    if !valid_name(text) then new_set(practice_sets, practice_set_names) end
       new_set_name = text
-      add_set(new_set_name, practice_sets, practice_set_names)
-    end
-    return practice_sets, practice_set_names, quit
+      quit = add_a_set(new_set_name, practice_sets, practice_set_names)
+    return quit
   end
 
-  def add_set(new_set_name, practice_sets, practice_set_names) #called by new set #TODO: don't add set without a routine
-    new_routines = []
+  def valid_name(name) #called by new_set, get_new_routine
+    if (name != nil and !name.empty?) then return true end
+    MessageBoxWidget.run_qt("Please enter a name.")
+    return false
+  end
+
+  def add_a_set(new_set_name, practice_sets, practice_set_names) #called by new_set
     message = "Your set needs at least one routine in it"
     MessageBoxWidget.run_qt(message)
-    new_routine = get_new_routine
+    new_routine = get_new_routine   #########################################################################
+puts "new routine: #{new_routine}"
     if new_routine == "back"
       choose_set_to_practice(practice_sets, practice_set_names)
-    else #TODO: confirm new_routine is a routine object
+    elsif new_routine == "quit"
+      return true
+    elsif new_routine.class == Routine
+      new_routines = []
       new_routines.push(new_routine)
       new_set = PracticeSet.new(new_set_name, 0, new_routines)
       practice_sets.push(new_set)  #Do I need to index a set_count somewhere?
       practice_set_names.push(new_set_name)
-      add_set = false  #I probably don't need this line
       choose_set_to_practice(practice_sets, practice_set_names) #TODO: added set shows up as nil in practice chosen set?
     end
-#    return practice_sets, practice_set_names, quit
+    return false
   end
 
   def delete_a_set(practice_sets, practice_set_names)
@@ -226,7 +234,7 @@ class Trainer
     end
     practice_set_names.delete(set_to_delete)
     choose_set_to_practice(practice_sets, practice_set_names)
-    return practice_sets, practice_set_names, quit
+    return quit
   end
 
   def practice_chosen_set(practice_sets, practice_set_names, chosen_set_name)
@@ -236,32 +244,53 @@ class Trainer
     practice_routines(chosen_set, practice_sets, practice_set_names)  #TODO move recursion to here? (chg to chosen set =, if none recurse
   end
 
- #TODO: #TODO: #TODO: #TODO: #TODO: #TODO: #TODO: #TODO: #TODO: #TODO: #TODO:combine with addroutine below, improve.
-  def get_new_routine #called by add_set,  TODO: AddRoutine will add an empty routine.
-    name_text, link_text, back, quit, priority = AddRoutineWidget.run_qt
-    if quit then at_exit(0) end  #TODO: create saveatexit variable
+  def get_new_routine # called by add_a_set    #########################################################################
+    name, link, back, quit, priority = AddRoutineWidget.run_qt
+    if quit then return "quit" end
     if back then return "back" end
-    new_routine_name, new_routine_link, priority = check_new_routine_values(name_text, link_text, priority)
-    new_routine = build_routine(new_routine_name, new_routine_link, priority)
-    return new_routine
-  end
-
-  def check_new_routine_values(name_text, link_text, priority) #called by  get_new_routine
-    message =  "Your routine needs a name plus a link or description."
-    if (name_text != nil and link_text != nil)
-      new_routine_name = name_text
-      new_routine_link = link_text
-        if not (new_routine_name.empty? or new_routine_link.empty?)
-          build_routine(new_routine_name, new_routine_link, priority)
-        else
-          MessageBoxWidget.run_qt(message) #recurse   if it has a name or a link, send that to addroutinewidget
-          get_new_routine
-        end
+    if valid_name(name) and valid_link(link)
+      routine = build_routine(name, link, priority)
     else
-      MessageBoxWidget.run_qt(message) #recurse
       get_new_routine
     end
+    return routine
   end
+
+  def valid_link(link) #called by get_new_routine
+    if (link != nil and !link.empty?) then return true end
+    MessageBoxWidget.run_qt("Please enter something in the link field.")
+    return false
+  end
+
+# #TODO:combine with addroutine below, improve.
+#  def get_new_routine(valid = true) #called by add_set,  TODO: AddRoutine will add an empty routine.
+#puts "239 valid  = #{valid}"
+#    name_text, link_text, back, quit, priority = AddRoutineWidget.run_qt
+#    if back == [true, nil] then back = true end   #this is dumb!!!!
+#    if back then return nil, back, quit end
+#puts "239 back = #{back}"
+#    unless (quit or back or !valid)
+#      new_routine_name, new_routine_link, priority = check_new_routine_values(name_text, link_text, priority)
+#      new_routine = build_routine(new_routine_name, new_routine_link, priority)
+#puts "243 back = #{back}"
+#    end
+#puts "245 back = #{back}"
+#    return new_routine, back, quit
+#  end
+#
+#  def check_new_routine_values(name_text, link_text, priority) #called by  get_new_routine
+#    message =  "Your routine needs a name plus a link or description."
+#puts "259 back = "
+#    if (name_text != nil and link_text != nil and !name_text.empty? and !link_text.empty?)
+#      new_routine_name = name_text
+#puts "261 back = #{back}"
+#      new_routine_link = link_text
+#    else
+#      MessageBoxWidget.run_qt(message) #recurse   if it has a name or a link, send that to addroutinewidget
+#puts "265 back = "
+#      get_new_routine(false)
+#    end
+#  end
 
   def build_routine(new_routine_name = "", new_routine_link = "", priority = 1)  #?""
     routine = Routine.new({
