@@ -3,33 +3,25 @@ require 'Qt4'
 
 class AddRoutineWidget < Qt::Widget
 
-    slots 'on_changed(QString)', 'theTextChanged()'
+  slots 'on_changed(QString)', 'theTextChanged()'
 
-    attr_accessor :new_routine_name, :new_routine_link, :back, :quit, :priority
+  attr_accessor :new_routine_name, :new_routine_link, :back, :quit, :priority
 
-    def self.new_routine_name
-      @new_routine_name
-    end
+  def self.new_routine_name
+    @new_routine_name
+  end
 
-    def self.new_routine_link
-      @new_routine_link
-    end
+  def self.new_routine_link
+    @new_routine_link
+  end
 
-    def self.status
-      @@status
-    end
+  def self.status
+    @@status
+  end
 
-    def self.quit
-      @@quit
-    end
-
-    def self.back
-      @@back
-    end
-
-    def self.priority
-      @@priority
-    end
+  def self.priority
+    @@priority
+  end
 
   def slider
     @slider
@@ -42,24 +34,24 @@ class AddRoutineWidget < Qt::Widget
   def initialize(parent = nil)
   super(parent)
 
-      setWindowTitle "ADD A ROUTINE"
+    setWindowTitle "ADD A ROUTINE"
 
-      init_ui
+    init_ui
 
-      resize 200, 150
-      move 300, 300
+    resize 200, 150
+    move 300, 300
 
-      show
-  end  #14
+    show
+  end
 
   def init_ui
-    @@status = ""
+    @@status = nil
     @@back = false
     @@quit = false
     @@priority = 1
 
     @name_label = Qt::Label.new self    #self here puts the widget in the window
-    @name_label.setText "Enter New Routine Name"   #TODO MAKE EXIT WORK!!!!!!!
+    @name_label.setText "Enter New Routine Name"
     @name_label.adjustSize
 
     edit = Qt::LineEdit.new self
@@ -98,27 +90,27 @@ class AddRoutineWidget < Qt::Widget
     connect(@slider, SIGNAL('valueChanged(int)'), @lcd, SLOT('display(int)'))
     connect(@slider, SIGNAL('valueChanged(int)')) {@@priority = @slider.value}
 
-        @priority_label = Qt::Label.new self
-        @priority_label.setText "Set Priority With Slider"
-        @priority_label.adjustSize
+    @priority_label = Qt::Label.new self
+    @priority_label.setText "Set Priority With Slider"
+    @priority_label.adjustSize
 
-            #  http://flylib.com/books/en/2.491.1.168/1/
-       @done_button = Qt::PushButton.new self
-       @done_button.setText "OK"
-       connect(@done_button, SIGNAL('clicked()')) { @@status = "done"
-        $qApp.quit}
+        #  http://flylib.com/books/en/2.491.1.168/1/
+    @done_button = Qt::PushButton.new self
+    @done_button.setText "OK"
+    connect(@done_button, SIGNAL('clicked()')) { @@status = :done
+      $qApp.quit}
 
-       @back_button = Qt::PushButton.new self
-       @back_button.setText "BACK"
-       connect(@back_button, SIGNAL('clicked()')) {@@status = "back"
-        $qApp.quit}
+    @back_button = Qt::PushButton.new self
+    @back_button.setText "BACK"
+    connect(@back_button, SIGNAL('clicked()')) {@@status = :back
+      $qApp.quit}
 
-       @quit_button = Qt::PushButton.new self
-       @quit_button.setText "Exit Program"
-       connect(@quit_button, SIGNAL('clicked()')) {@@status = "quit"
-        $qApp.quit}
+    @quit_button = Qt::PushButton.new self
+    @quit_button.setText "Exit Program"
+    connect(@quit_button, SIGNAL('clicked()')) {@@status = :quit
+      $qApp.quit}
 
-       box = Qt::VBoxLayout.new
+    box = Qt::VBoxLayout.new
     box.addWidget(@name_label)
     box.addWidget(edit)
     box.addWidget(@link_label)
@@ -131,25 +123,22 @@ class AddRoutineWidget < Qt::Widget
     box.addWidget(@back_button)
     box.addWidget(@quit_button)
     setLayout(box)
-#        edit.move 30, 60      #consider layout
-#        @name_label.move 25, 20
-#        @done_button.move 100, 100
+  end
 
-    end #27
+  def on_changed text
+    @new_routine_name = text
+  end
 
-    def on_changed text
-      @new_routine_name = text
-    end    #58
+  def theTextChanged
+    @new_routine_link = @textedit.toPlainText
+  end
 
-    def theTextChanged
-      @new_routine_link = @textedit.toPlainText
-    end    #62
-
-  def self.run_qt #called by ...
+  def self.run_qt #called by pract.add_a_set and ...
     app = Qt::Application.new ARGV
     add_routine = AddRoutineWidget.new
     app.exec
     return add_routine.new_routine_name, add_routine.new_routine_link, status, priority
   end
+
 end
 

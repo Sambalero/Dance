@@ -136,9 +136,9 @@ class Routine
     1/(session_count - @last_routines_practice_count + 1)
   end
 
-  def priority_factor #called by calc_score    #TODO confirm this can be deleted
-    @priority == 0 ? 1.0 : 1/@priority
-  end
+#  def priority_factor #called by calc_score    #TODO confirm this can be deleted
+#    @priority == 0 ? 1.0 : 1/@priority
+#  end
 
   def last_time_factor #called by calc_score
     @last_success_value == 0 ? 0.1 : 1.0
@@ -192,11 +192,11 @@ class Trainer
   def new_set(practice_sets, practice_set_names) #called by choose_set_to_practice
     quit = false
     text, back, quit = AddSetWidget.run_qt
-    if back then choose_set_to_practice(practice_sets, practice_set_names) end # why not simply return
+    if back then choose_set_to_practice(practice_sets, practice_set_names) end
     if quit then at_exit(practice_sets) end
     if !valid_name(text) then new_set(practice_sets, practice_set_names) end
       new_set_name = text
-      quit = add_a_set(new_set_name, practice_sets, practice_set_names)
+      quit = get_first_routine(new_set_name, practice_sets, practice_set_names)
     return quit
   end
 
@@ -206,24 +206,58 @@ class Trainer
     return false
   end
 
-  def add_a_set(new_set_name, practice_sets, practice_set_names) #called by new_set
+  def get_first_routine(new_set_name, practice_sets, practice_set_names) #called by new_set
     message = "Your set needs at least one routine in it"
     MessageBoxWidget.run_qt(message)
-    new_routine = get_new_routine   #########################################################################
-puts "new routine: #{new_routine}"
-    if new_routine == "back"
-      choose_set_to_practice(practice_sets, practice_set_names)
-    elsif new_routine == "quit"
-      return true
-    elsif new_routine.class == Routine
+    new_routine = get_new_routine
+    if new_routine == "back" then choose_set_to_practice(practice_sets, practice_set_names) end
+    if new_routine == "quit" then return true end
+    if new_routine.class == Routine
       new_routines = []
       new_routines.push(new_routine)
-      new_set = PracticeSet.new(new_set_name, 0, new_routines)
-      practice_sets.push(new_set)  #Do I need to index a set_count somewhere?
-      practice_set_names.push(new_set_name)
-      choose_set_to_practice(practice_sets, practice_set_names) #TODO: added set shows up as nil in practice chosen set?
+      build_set(new_set_name, new_routines, practice_sets, practice_set_names)
     end
     return false
+  end
+
+  def get_new_routine # called by add_a_set
+    name, link, status, priority = AddRoutineWidget.run_qt
+    if status == :quit then return "quit" end
+    if status == :back then return "back" end
+    if valid_name(name) and valid_link(link)
+      routine = build_routine(name, link, priority)
+    else
+      routine = get_new_routine
+    end
+    return routine
+  end
+
+  def valid_link(link) #called by get_new_routine    #TODO fortify this
+    if (link != nil and !link.empty?) then return true end
+    MessageBoxWidget.run_qt("Please enter something in the link field.")
+    return false
+  end
+
+  def build_routine(new_routine_name = "", new_routine_link = "", priority = 1)  #?""
+    routine = Routine.new({
+      :name => new_routine_name,
+      :link => new_routine_link,
+      :priority => priority,
+      :practice_count => 0,
+      :success_count => 0,
+      :last_routines_practice_count => 0,
+      :last_success_value => 0.1,
+      :last_date_practiced => Time.now,
+      :score => 0 })
+  end
+
+  def build_set(new_set_name, new_routines, practice_sets, practice_set_names)
+      new_set = PracticeSet.new(new_set_name, 0, new_routines)
+      practice_sets.push(new_set)
+      practice_set_names.push(new_set_name)
+      write_practice_sets(practice_sets)
+      practice_sets, practice_set_names = marshal
+      choose_set_to_practice(practice_sets, practice_set_names)  #TODO do what if routine can't be shown, if next doesn't exist
   end
 
   def delete_a_set(practice_sets, practice_set_names)
@@ -241,30 +275,9 @@ puts "new routine: #{new_routine}"
     chosen_set_index = practice_set_names.index(chosen_set_name)
     chosen_set = practice_sets[chosen_set_index]
     chosen_set.sort_routines_by_score
-    practice_routines(chosen_set, practice_sets, practice_set_names)  #TODO move recursion to here? (chg to chosen set =, if none recurse
+    practice_routines(chosen_set, practice_sets, practice_set_names)
   end
 
-  def get_new_routine # called by add_a_set    #########################################################################
-    name, link, status, priority = AddRoutineWidget.run_qt
-    if status == "quit" then return "quit" end
-puts "back 250: #{status}"
-    if status == "back" then
-    puts "in block"
-    return "back"
-    end
-    if valid_name(name) and valid_link(link)
-      routine = build_routine(name, link, priority)
-    else
-      get_new_routine
-    end
-    return routine
-  end
-
-  def valid_link(link) #called by get_new_routine
-    if (link != nil and !link.empty?) then return true end
-    MessageBoxWidget.run_qt("Please enter something in the link field.")
-    return false
-  end
 
 # #TODO:combine with addroutine below, improve.
 #  def get_new_routine(valid = true) #called by add_set,  TODO: AddRoutine will add an empty routine.
@@ -296,56 +309,13 @@ puts "back 250: #{status}"
 #    end
 #  end
 
-  def build_routine(new_routine_name = "", new_routine_link = "", priority = 1)  #?""
-    routine = Routine.new({
-      :name => new_routine_name,
-      :link => new_routine_link,
-      :priority => priority,
-      :practice_count => 0,
-      :success_count => 0,
-      :last_routines_practice_count => 0,
-      :last_success_value => 0.1,
-      :last_date_practiced => Time.now,
-      :score => 0 })
-  end
-
-  def add_routine(chosen_set, routines_in_process = nil, initial_set_size = nil) #called by practice_routines, choose_set_to_practice
-     name, link, back, quit,  priority, done = AddRoutineWidget.run_qt   #TODO can we combine with the add routine stuff above?
-        if done
-          build_routine(name, link, priority)
-        elsif quit #????
-        elsif back #do nothing
-        else
-          puts "Error in AddRoutine, EditRoutine"
-        end
-
-        chosen_set.routines.push(routine)
-        routines_in_process.push(routine) if routines_in_process != nil
-
-        initial_set_size += 1 if initial_set_size != nil
-  end
-
-  def delete_routine(routines_in_process, chosen_set, routines_to_delete)
-    routines_to_delete.each do |rtd|
-
-      chosen_set.routines.each do |routine|
-        chosen_set.routines.delete(routine) if rtd.name == routine.name
-      end
-
-      routines_in_process.each do |routine|
-        routines_in_process.delete(routine) if rtd.name == routine.name
-      end
-    end
-  end
-
-
-  def practice_routines(chosen_set, practice_sets, practice_set_names) # called by choose_set_to_practice...............
+  def practice_routines(chosen_set, practice_sets, practice_set_names) # called by choose_set_to_practice
     initial_set_size = chosen_set.routines.length
     routines_in_process = chosen_set.routines.clone
     quit = false
     #TODO if none, choose set again
     while routines_in_process != [] and !quit
-puts "line 261"
+puts "line 344"
       chosen_routine, add_routine, delete_routine, edit_stats, quit = ChooseRoutineToPracticeWidget.run_qt(routines_in_process)
 #-----------------------add routine----------------
       if add_routine
@@ -422,6 +392,37 @@ puts "line 261"
     end
     #TODO return chosen set, none?
   end
+
+  def add_routine(chosen_set, routines_in_process = nil, initial_set_size = nil) #called by practice_routines, choose_set_to_practice
+     name, link, back, quit,  priority, done = AddRoutineWidget.run_qt   #TODO can we combine with the add routine stuff above?
+        if done
+          build_routine(name, link, priority)
+        elsif quit #????
+        elsif back #do nothing
+        else
+          puts "Error in AddRoutine, EditRoutine"
+        end
+
+        chosen_set.routines.push(routine)
+        routines_in_process.push(routine) if routines_in_process != nil
+
+        initial_set_size += 1 if initial_set_size != nil
+  end
+
+  def delete_routine(routines_in_process, chosen_set, routines_to_delete)
+    routines_to_delete.each do |rtd|
+
+      chosen_set.routines.each do |routine|
+        chosen_set.routines.delete(routine) if rtd.name == routine.name
+      end
+
+      routines_in_process.each do |routine|
+        routines_in_process.delete(routine) if rtd.name == routine.name
+      end
+    end
+  end
+
+
 
   def practice_success?(routine, response) #called by practice_routines
     response == 5 or (response == 4 and routine.priority < 4)
