@@ -35,15 +35,15 @@
 ####Todo track camera usage?
 
 ################TODO*****IN PROCESS*****TODO#################   test, addroutine
-#TODO change exits to follow back through the program and save
-#TODO develop text option in place of link - see howdidyoudo, editroutine, addroutine
+#TODO make sure exits save properly
+#TODO develop text option in place of link for show routine
 #TODO can widget buttons change color or something when clicked?   Also, activate input boxes when button clicked (add routine, add set)
 #TODO confirm: does add routine update the set routine count?
-#TODO confirm: does add set update the number of sets count?
 #TODO clean up variable scope in widgets
 #TODO reorder method definitions
 #TODO set up for second column in chooseroutine, better window positioning
 #Keith's suggestions
+# split trainer between object management and training
 #	consider getting rapid gui development with qt ruby by pragmatic press
 #	may be available fromdemonoid
 #	test driven development
@@ -83,6 +83,7 @@ require_relative 'howdidyoudo'
 require_relative 'deleteroutine'
 require_relative 'settodelete'
 require_relative 'messagebox'
+#require_relative 'testWidget'
 
 $FILEPATH = '~/prog/pract/practfiles/'
 
@@ -136,10 +137,6 @@ class Routine
     1/(session_count - @last_routines_practice_count + 1)
   end
 
-#  def priority_factor #called by calc_score    #TODO confirm this can be deleted
-#    @priority == 0 ? 1.0 : 1/@priority
-#  end
-
   def last_time_factor #called by calc_score
     @last_success_value == 0 ? 0.1 : 1.0
   end
@@ -163,6 +160,8 @@ class Trainer
 ####  include widgets
 
   def main #called at startup
+#  test = TestWidget.run_qt("word")
+#  puts "test = #{test}"
     practice_sets = []
     if File.exist? FILENAME
       practice_sets, practice_set_names = marshal
@@ -220,19 +219,24 @@ class Trainer
     return false
   end
 
-  def get_new_routine # called by add_a_set
-    name, link, status, priority = AddRoutineWidget.run_qt
+  def get_new_routine(new_routine_name = "", new_routine_link = "", priority = 1)# called by add_a_set, add_routine
+    name, link, status, priority = AddRoutineWidget.run_qt(new_routine_name, new_routine_link, priority)
+puts "line 224 status = #{status}"
     if status == :quit then return "quit" end
     if status == :back then return "back" end
     if valid_name(name) and valid_link(link)
       routine = build_routine(name, link, priority)
+    elsif valid_name(name)
+      get_new_routine(name)
+    elsif valid_link(link)
+      get_new_routine("", link)
     else
       routine = get_new_routine
     end
     return routine
   end
 
-  def valid_link(link) #called by get_new_routine    #TODO fortify this
+  def valid_link(link) #called by get_new_routine
     if (link != nil and !link.empty?) then return true end
     MessageBoxWidget.run_qt("Please enter something in the link field.")
     return false
@@ -257,18 +261,18 @@ class Trainer
       practice_set_names.push(new_set_name)
       write_practice_sets(practice_sets)
       practice_sets, practice_set_names = marshal
-      choose_set_to_practice(practice_sets, practice_set_names)  #TODO do what if routine can't be shown, if next doesn't exist
+      choose_set_to_practice(practice_sets, practice_set_names)
   end
 
   def delete_a_set(practice_sets, practice_set_names)
     set_to_delete, quit, back = SetToDeleteWidget.run_qt(practice_set_names)
+    if quit then return quit end
     if (set_to_delete == nil or back) then choose_set_to_practice(practice_sets, practice_set_names) end
     practice_sets.each do |set|
       practice_sets.delete(set) if set.name == set_to_delete
     end
     practice_set_names.delete(set_to_delete)
     choose_set_to_practice(practice_sets, practice_set_names)
-    return quit
   end
 
   def practice_chosen_set(practice_sets, practice_set_names, chosen_set_name)
@@ -278,67 +282,28 @@ class Trainer
     practice_routines(chosen_set, practice_sets, practice_set_names)
   end
 
-
-# #TODO:combine with addroutine below, improve.
-#  def get_new_routine(valid = true) #called by add_set,  TODO: AddRoutine will add an empty routine.
-#puts "239 valid  = #{valid}"
-#    name_text, link_text, back, quit, priority = AddRoutineWidget.run_qt
-#    if back == [true, nil] then back = true end   #this is dumb!!!!
-#    if back then return nil, back, quit end
-#puts "239 back = #{back}"
-#    unless (quit or back or !valid)
-#      new_routine_name, new_routine_link, priority = check_new_routine_values(name_text, link_text, priority)
-#      new_routine = build_routine(new_routine_name, new_routine_link, priority)
-#puts "243 back = #{back}"
-#    end
-#puts "245 back = #{back}"
-#    return new_routine, back, quit
-#  end
-#
-#  def check_new_routine_values(name_text, link_text, priority) #called by  get_new_routine
-#    message =  "Your routine needs a name plus a link or description."
-#puts "259 back = "
-#    if (name_text != nil and link_text != nil and !name_text.empty? and !link_text.empty?)
-#      new_routine_name = name_text
-#puts "261 back = #{back}"
-#      new_routine_link = link_text
-#    else
-#      MessageBoxWidget.run_qt(message) #recurse   if it has a name or a link, send that to addroutinewidget
-#puts "265 back = "
-#      get_new_routine(false)
-#    end
-#  end
-
   def practice_routines(chosen_set, practice_sets, practice_set_names) # called by choose_set_to_practice
     initial_set_size = chosen_set.routines.length
     routines_in_process = chosen_set.routines.clone
-    quit = false
-    #TODO if none, choose set again
-    while routines_in_process != [] and !quit
-puts "line 344"
+    while routines_in_process != []
       chosen_routine, add_routine, delete_routine, edit_stats, quit = ChooseRoutineToPracticeWidget.run_qt(routines_in_process)
-#-----------------------add routine----------------
-      if add_routine
-        add_routine(chosen_set, routines_in_process, initial_set_size)
-#-----------------------delete routine----------------
-      elsif delete_routine
-        routines_to_delete, quit = DeleteRoutineWidget.run_qt(chosen_set.routines)
-        if quit         #TODO sometimes quit doesn't?
-          puts "quit"
-        elsif routines_to_delete == nil
-          puts "ERROR: routines_to_delete = nil"
-        elsif routines_to_delete == []
-          puts "none"
-          practice_routines(chosen_set, practice_sets, practice_set_names)
-        else
-        puts "routines to delete"
-          routines_to_delete.each do |routine|
-            puts "#{routine.name}"
-          end
-        delete_routine(routines_in_process, chosen_set, routines_to_delete)
-        end
-#-------------------------edit routine---------------------
-      elsif edit_stats
+      if quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
+      if edit_stats then edit_routine(chosen_set, routines_in_process) end
+      if add_routine then add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size) end
+      if delete_routine then delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names) end
+      practice_routine(chosen_routine, routines_in_process, chosen_set)
+    end
+    index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets)
+  end
+
+  def index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets)
+
+puts "index_session_count"
+    if routines_in_process.length < initial_set_size then chosen_set.session_count +=1 end
+    at_exit(practice_sets)
+  end
+
+  def edit_routine(chosen_set, routines_in_process)
         routine = RoutineToEditWidget.run_qt(chosen_set.routines)
         routine_index = chosen_set.routines.index(routine)
         rip_routine_index = routines_in_process.index(routine)
@@ -364,11 +329,42 @@ puts "line 344"
         else
           puts "Error in EditRoutine"
         end
-#--------------------------???-----------------
-      elsif chosen_routine == 'none'
-        choose_set_to_practice(practice_sets, practice_set_names)
-      elsif quit  #if quit do nothing...
-      else
+  end
+
+  def add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size) #called by practice_routines
+    new_routine = get_new_routine
+puts "new_routine = #{new_routine}"
+    if new_routine == "back" then practice_routines(chosen_set, practice_sets, practice_set_names) end
+    if new_routine == "quit" then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end  #########???????
+    if new_routine.class == Routine
+      chosen_set.routines.push(new_routine)
+      write_practice_sets practice_sets   ###########????????????
+      routines_in_process.push(new_routine)
+      initial_set_size += 1
+    end
+  end
+
+  def delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names)
+        routines_to_delete, quit = DeleteRoutineWidget.run_qt(chosen_set.routines)
+        if quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
+        if routines_to_delete == (nil or []) then practice_routines(chosen_set, practice_sets, practice_set_names) end
+        delete_routines(routines_in_process, chosen_set, routines_to_delete)
+        end
+
+  def delete_routines(routines_in_process, chosen_set, routines_to_delete)
+    routines_to_delete.each do |rtd|
+
+      chosen_set.routines.each do |routine|
+        chosen_set.routines.delete(routine) if rtd.name == routine.name
+      end
+
+      routines_in_process.each do |routine|
+        routines_in_process.delete(routine) if rtd.name == routine.name
+      end
+    end
+  end
+
+  def practice_routine(chosen_routine, routines_in_process, chosen_set)   #TODO when out of routines, "that's all the routines. do you want to practice another set?"
          performance_rating, quit, pass = HowDidYouDoWidget.run_qt(chosen_routine) #TODO if == 5, change priority?
 
         if (pass or performance_rating == 0)
@@ -383,44 +379,108 @@ puts "line 344"
           chosen_routine.index_practice_counts(chosen_set.session_count)
           routines_in_process.delete(chosen_routine)
         end
-
-      end
-    end
-
-    if routines_in_process.length < initial_set_size
-      chosen_set.session_count +=1
-    end
-    #TODO return chosen set, none?
   end
 
-  def add_routine(chosen_set, routines_in_process = nil, initial_set_size = nil) #called by practice_routines, choose_set_to_practice
-     name, link, back, quit,  priority, done = AddRoutineWidget.run_qt   #TODO can we combine with the add routine stuff above?
-        if done
-          build_routine(name, link, priority)
-        elsif quit #????
-        elsif back #do nothing
-        else
-          puts "Error in AddRoutine, EditRoutine"
-        end
+#  def practice_routines(chosen_set, practice_sets, practice_set_names) # called by choose_set_to_practice #TODO do what if routine can't be shown, if next doesn't exist
+#    initial_set_size = chosen_set.routines.length
+#    routines_in_process = chosen_set.routines.clone
+#    quit = false
+#    #TODO if none, choose set again
+#    while routines_in_process != [] and !quit
+#puts "line 344"
+#      chosen_routine, add_routine, delete_routine, edit_stats, quit = ChooseRoutineToPracticeWidget.run_qt(routines_in_process)
+##-----------------------add routine----------------
+#      if add_routine
+#        add_routine(chosen_set, routines_in_process, initial_set_size)
+##-----------------------delete routine----------------
+#      elsif delete_routine
+#        routines_to_delete, quit = DeleteRoutineWidget.run_qt(chosen_set.routines)
+#        if quit         #TODO sometimes quit doesn't?
+#          puts "quit"
+#        elsif routines_to_delete == nil
+#          puts "ERROR: routines_to_delete = nil"
+#        elsif routines_to_delete == []
+#          puts "none"
+#          practice_routines(chosen_set, practice_sets, practice_set_names)
+#        else
+#        puts "routines to delete"
+#          routines_to_delete.each do |routine|
+#            puts "#{routine.name}"
+#          end
+#        delete_routine(routines_in_process, chosen_set, routines_to_delete)
+#        end
+##-------------------------edit routine---------------------
+#      elsif edit_stats
+#        routine = RoutineToEditWidget.run_qt(chosen_set.routines)
+#        routine_index = chosen_set.routines.index(routine)
+#        rip_routine_index = routines_in_process.index(routine)
+#
+#        name, link, priority, practice_count, success_count, last_success_value, back, done, quit = EditRoutineWidget.run_qt(routine)
+#  #TODO test that each new name is unique
+#        if done
+#          routine.name = name
+#          routine.link = link
+#          routine.priority = priority
+#          routine.practice_count = practice_count
+#          routine.success_count = success_count
+#          if last_success_value
+#           routine.last_success_value = (routine.last_success_value ==  0.1 ? 1 : 0.1)
+#          end
+#          #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO# #TODO#
+#   #TODO change last success value to a button in widget
+#          #put it back in the set...
+#          chosen_set.routines[routine_index] = routine
+#          routines_in_process[rip_routine_index] = routine
+#        elsif back # do nothing - handled later
+#        elsif quit # do nothing - handled later
+#        else
+#          puts "Error in EditRoutine"
+#        end
+##--------------------------???-----------------
+#      elsif chosen_routine == 'none'
+#        choose_set_to_practice(practice_sets, practice_set_names)
+#      elsif quit  #if quit do nothing...
+#      else
+#         performance_rating, quit, pass = HowDidYouDoWidget.run_qt(chosen_routine) #TODO if == 5, change priority?
+#
+#        if (pass or performance_rating == 0)
+#          routines_in_process.delete(chosen_routine)
+#
+#        else
+#          if practice_success?(chosen_routine, performance_rating)
+#            chosen_routine.index_success_counts
+#          else
+#            chosen_routine.last_success_value = 0.1
+#          end
+#          chosen_routine.index_practice_counts(chosen_set.session_count)
+#          routines_in_process.delete(chosen_routine)
+#        end
+#
+#      end
+#    end
+#
+#    if routines_in_process.length < initial_set_size
+#      chosen_set.session_count +=1
+#    end
+#    #TODO return chosen set, none?
+#  end
 
-        chosen_set.routines.push(routine)
-        routines_in_process.push(routine) if routines_in_process != nil
+#  def add_routine(chosen_set, routines_in_process = nil, initial_set_size = nil) #called by practice_routines, choose_set_to_practice
+#     name, link, back, quit,  priority, done = AddRoutineWidget.run_qt   #TODO can we combine with the add routine stuff above?
+#        if done
+#          build_routine(name, link, priority)
+#        elsif quit #????
+#        elsif back #do nothing
+#        else
+#          puts "Error in AddRoutine, EditRoutine"
+#        end
+#
+#        chosen_set.routines.push(routine)
+#        routines_in_process.push(routine) if routines_in_process != nil
+#
+#        initial_set_size += 1 if initial_set_size != nil
+#  end
 
-        initial_set_size += 1 if initial_set_size != nil
-  end
-
-  def delete_routine(routines_in_process, chosen_set, routines_to_delete)
-    routines_to_delete.each do |rtd|
-
-      chosen_set.routines.each do |routine|
-        chosen_set.routines.delete(routine) if rtd.name == routine.name
-      end
-
-      routines_in_process.each do |routine|
-        routines_in_process.delete(routine) if rtd.name == routine.name
-      end
-    end
-  end
 
 
 
@@ -434,11 +494,6 @@ puts "line 344"
 # I want to reset focus to terminal; maybe wait for linked file to close
 # open terminal may work, but first the delay
 
-  def practice_routine(routine) #called by practice_routines
-    fork do       #maybe this wants to be spawn?
-      exec "open #{routine.link}"
-    end
-  end
 end
 
 
