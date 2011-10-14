@@ -5,18 +5,14 @@ class AddRoutineWidget < Qt::Widget
 
     slots 'on_changed(QString)', 'theTextChanged()'
 
-    attr_accessor :new_routine_name, :new_routine_link, :back, :quit, :priority, :nombre
+    attr_accessor :back, :quit, :priority, :nombre, :link
 
     def self.nombre
       @@name
     end
 
-    def self.new_routine_name
-      @new_routine_name
-    end
-
-    def self.new_routine_link
-      @new_routine_link
+    def self.link
+      @@link
     end
 
     def self.status
@@ -90,6 +86,7 @@ class AddRoutineWidget < Qt::Widget
     @textedit = Qt::TextEdit.new(self)
     @textedit.setWordWrapMode(Qt::TextOption::WordWrap)
     @textedit.setFont( Qt::Font.new("Times", 24) )
+    @textedit.setText @@link
     connect(@textedit, SIGNAL('textChanged()'), self, SLOT('theTextChanged()'))
 
     @lcd = Qt::LCDNumber.new(2)
@@ -143,15 +140,16 @@ class AddRoutineWidget < Qt::Widget
     end
 
     def theTextChanged
-      @new_routine_link = @textedit.toPlainText
+      @@link = @textedit.toPlainText
     end
 
   def self.run_qt(name = "", link = "", priority = 1) #called by ...
     @@nombre = name
+    @@link = link
     app = Qt::Application.new ARGV
     add_routine = AddRoutineWidget.new
     app.exec
-    return @@nombre, add_routine.new_routine_link, status, priority
+    return @@nombre, @@link, status, priority
   end
 end
 

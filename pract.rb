@@ -84,7 +84,7 @@ require_relative 'deleteroutine'
 require_relative 'settodelete'
 require_relative 'messagebox'
 #require_relative 'testWidget'
-
+require 'time'
 $FILEPATH = '~/prog/pract/practfiles/'
 
 def is_numeric?(string)
@@ -219,17 +219,22 @@ class Trainer
     return false
   end
 
-  def get_new_routine(new_routine_name = "", new_routine_link = "", priority = 1)# called by add_a_set, add_routine
+  def get_new_routine(new_routine_name = "", new_routine_link = "", priority = 1)# called by add_a_set, add_routine   TODO delete priority from param list?
     name, link, status, priority = AddRoutineWidget.run_qt(new_routine_name, new_routine_link, priority)
-puts "line 224 status = #{status}"
+puts "status in get_new_routine: #{status}"
+puts "status in get_new_routine: #{status}"
     if status == :quit then return "quit" end
     if status == :back then return "back" end
     if valid_name(name) and valid_link(link)
       routine = build_routine(name, link, priority)
     elsif valid_name(name)
-      get_new_routine(name)
+      routine = get_new_routine(name)
+      if routine == "back" then return "back" end
+      if routine == "quit" then return "quit" end
     elsif valid_link(link)
-      get_new_routine("", link)
+      routine = get_new_routine("", link)
+      if routine == "back" then return "back" end
+      if routine == "quit" then return "quit" end
     else
       routine = get_new_routine
     end
@@ -282,14 +287,18 @@ puts "line 224 status = #{status}"
     practice_routines(chosen_set, practice_sets, practice_set_names)
   end
 
-  def practice_routines(chosen_set, practice_sets, practice_set_names) # called by choose_set_to_practice
+  def practice_routines(chosen_set, practice_sets, practice_set_names) # called by choose_set_to_practice, self
     initial_set_size = chosen_set.routines.length
     routines_in_process = chosen_set.routines.clone
     while routines_in_process != []
       chosen_routine, add_routine, delete_routine, edit_stats, quit = ChooseRoutineToPracticeWidget.run_qt(routines_in_process)
       if quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
       if edit_stats then edit_routine(chosen_set, routines_in_process) end
-      if add_routine then add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size) end
+      if add_routine
+        add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size)
+puts "in practice routines / add routine"        #is quit being returned here?
+        practice_routines(chosen_set, practice_sets, practice_set_names)
+      end
       if delete_routine then delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names) end
       practice_routine(chosen_routine, routines_in_process, chosen_set)
     end
@@ -297,7 +306,6 @@ puts "line 224 status = #{status}"
   end
 
   def index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets)
-
 puts "index_session_count"
     if routines_in_process.length < initial_set_size then chosen_set.session_count +=1 end
     at_exit(practice_sets)
@@ -331,14 +339,15 @@ puts "index_session_count"
         end
   end
 
-  def add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size) #called by practice_routines
+  def add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size) #called by practice_routine
     new_routine = get_new_routine
-puts "new_routine = #{new_routine}"
+puts "new_routine in add_routine = #{new_routine}"
     if new_routine == "back" then practice_routines(chosen_set, practice_sets, practice_set_names) end
     if new_routine == "quit" then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end  #########???????
     if new_routine.class == Routine
       chosen_set.routines.push(new_routine)
       write_practice_sets practice_sets   ###########????????????
+      practice_sets, practice_set_names = marshal
       routines_in_process.push(new_routine)
       initial_set_size += 1
     end
@@ -365,7 +374,7 @@ puts "new_routine = #{new_routine}"
   end
 
   def practice_routine(chosen_routine, routines_in_process, chosen_set)   #TODO when out of routines, "that's all the routines. do you want to practice another set?"
-         performance_rating, quit, pass = HowDidYouDoWidget.run_qt(chosen_routine) #TODO if == 5, change priority?
+         performance_rating, quit, pass = HowDidYouDoWidget.run_qt(chosen_routine) #TODO if == 5, change priority?   if quit?
 
         if (pass or performance_rating == 0)
           routines_in_process.delete(chosen_routine)
