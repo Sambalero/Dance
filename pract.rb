@@ -292,7 +292,8 @@ puts "status in get_new_routine: #{status}"
     routines_in_process = chosen_set.routines.clone
     while routines_in_process != []
       chosen_routine, response = ChooseRoutineToPracticeWidget.run_qt(routines_in_process)
-      if response == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end #NOTE this ain't working - goes to show
+puts "in practice routines response = #{response}"
+      if response == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
       if response == :edit_routine then edit_routine(chosen_set, routines_in_process) end
       if response == :add_routine
         add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size)

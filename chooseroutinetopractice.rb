@@ -13,22 +13,6 @@ attr_accessor :chosen_routine, :routines, :response
     @@response
   end
 
-  def self.add_routine
-    @@add_routine
-  end
-
-  def self.delete_routine
-    @@delete_routine
-  end
-
-  def self.edit_stats
-    @@edit_stats
-  end
-
-  def self.quit    #fixed?? quit should do what none does; none should allow us to start over
-    @@quit
-  end
-
   def chosen_routine
     @@chosen_routine
   end
@@ -53,10 +37,6 @@ attr_accessor :chosen_routine, :routines, :response
   def init_ui()
 
     @@response = ""
-    @@add_routine = false
-    @@delete_routine = false
-    @@edit_stats = false
-    @@quit = false
     @@chosen_routine = nil
 
     grid = Qt::GridLayout.new()
@@ -85,12 +65,12 @@ attr_accessor :chosen_routine, :routines, :response
     grid.addWidget(delete_routine_button, i+2, 0)
 
     edit_stats_button = Qt::PushButton.new 'Edit Stats'
-    connect(edit_stats_button, SIGNAL('clicked()')) {@@respone = :edit_routine
+    connect(edit_stats_button, SIGNAL('clicked()')) {@@response = :edit_routine
        $qApp.quit}
     grid.addWidget(edit_stats_button, i+3, 0)
 
     quit_button = Qt::PushButton.new 'Exit Program'
-    connect(quit_button, SIGNAL('clicked()')) {@@respones = :quit
+    connect(quit_button, SIGNAL('clicked()')) {@@response = :quit
        $qApp.quit}
     grid.addWidget(quit_button, i+4, 0)
 
