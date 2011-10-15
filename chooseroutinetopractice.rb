@@ -1,13 +1,17 @@
 require 'Qt4'
 require 'time'
 class ChooseRoutineToPracticeWidget < Qt::Widget
- #called by trainer.suggest_routine
+ #called by trainer.practice_routines
 
  #the ChooseRoutineToPracticeWidget offers an ordered list of routines to choose from, including "none" and "exit program"
  # the entire practice set is passed to it.
  # it returns a chosen routine
  # it needs a set-practiced flag  TODO confirm
-attr_accessor :chosen_routine, :routines
+attr_accessor :chosen_routine, :routines, :response
+
+  def self.response
+    @@response
+  end
 
   def self.add_routine
     @@add_routine
@@ -48,6 +52,7 @@ attr_accessor :chosen_routine, :routines
 
   def init_ui()
 
+    @@response = ""
     @@add_routine = false
     @@delete_routine = false
     @@edit_stats = false
@@ -65,27 +70,27 @@ attr_accessor :chosen_routine, :routines
     end
 
     done_button = Qt::PushButton.new 'Change Set (BACK)'
-    connect(done_button, SIGNAL('clicked()')) {@@chosen_routine = 'none'
+    connect(done_button, SIGNAL('clicked()')) {@@response = :back
        $qApp.quit}
     grid.addWidget(done_button, i, 0)
 
     add_routine_button = Qt::PushButton.new 'Add New Routine'
-    connect(add_routine_button, SIGNAL('clicked()')) {@@add_routine = true
+    connect(add_routine_button, SIGNAL('clicked()')) {@@response = :add_routine
        $qApp.quit}
     grid.addWidget(add_routine_button, i+1, 0)
 
     delete_routine_button = Qt::PushButton.new 'Delete Routine'
-    connect(delete_routine_button, SIGNAL('clicked()')) {@@delete_routine = true
+    connect(delete_routine_button, SIGNAL('clicked()')) {@@response = :delete_routine
        $qApp.quit}
     grid.addWidget(delete_routine_button, i+2, 0)
 
     edit_stats_button = Qt::PushButton.new 'Edit Stats'
-    connect(edit_stats_button, SIGNAL('clicked()')) {@@edit_stats = true
+    connect(edit_stats_button, SIGNAL('clicked()')) {@@respone = :edit_routine
        $qApp.quit}
     grid.addWidget(edit_stats_button, i+3, 0)
 
     quit_button = Qt::PushButton.new 'Exit Program'
-    connect(quit_button, SIGNAL('clicked()')) {@@quit = true
+    connect(quit_button, SIGNAL('clicked()')) {@@respones = :quit
        $qApp.quit}
     grid.addWidget(quit_button, i+4, 0)
 
@@ -98,7 +103,9 @@ attr_accessor :chosen_routine, :routines
     since = (Time.now.to_i - routine.last_date_practiced.to_i)/60/24/60
     @routine_button = Qt::PushButton.new routine.name, self
     @routine_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
-    connect(@routine_button, SIGNAL('clicked()')) {@@chosen_routine = routine
+    connect(@routine_button, SIGNAL('clicked()')) {
+      @@chosen_routine = routine
+      @@response = :practice
       $qApp.quit}
     @pract_label = Qt::Label.new "#{routine.practice_count} Attempts"
     time = Time.parse(routine.last_date_practiced)
@@ -112,7 +119,7 @@ attr_accessor :chosen_routine, :routines
     choose_routine.routines = routines
     choose_routine.init_ui
     app.exec
-    return choose_routine.chosen_routine, add_routine, delete_routine, edit_stats, quit
+    return choose_routine.chosen_routine, response
 
   end
 end
