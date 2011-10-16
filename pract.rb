@@ -387,16 +387,17 @@ puts "new_routine in add_routine = #{new_routine}"
     delete_routines(routines_in_process, chosen_set, routines_to_delete)                                    #returns to show
   end
 
-  def delete_routines(routines_in_process, chosen_set, routines_to_delete)   # called by practice_routines
-    routines_to_delete.each do |rtd|
+  def delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)   # called by delete_routine
+    routines_to_delete.each do |routine_to_delete|
 
       chosen_set.routines.each do |routine|
-        chosen_set.routines.delete(routine) if rtd.name == routine.name
+        chosen_set.routines.delete(routine) if routine_to_delete.name == routine.name
       end
 
       routines_in_process.each do |routine|
-        routines_in_process.delete(routine) if rtd.name == routine.name
+        routines_in_process.delete(routine) if routine_to_delete.name == routine.name
       end
+      initial_set_size -= 1
     end
   end
 
