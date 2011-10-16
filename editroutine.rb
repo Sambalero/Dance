@@ -9,7 +9,11 @@ class EditRoutineWidget < Qt::Widget
 
     slots 'new_name(QString)', 'new_link(QString)', 'new_priority(QString)', 'new_practice_count(QString)', 'new_success_count(QString)', 'new_last_success_value(QString)'
 
-    attr_accessor :routine, :nombre, :link, :priority, :practice_count, :success_count, :last_success_value
+    attr_accessor :routine, :nombre, :link, :priority, :practice_count, :success_count, :last_success_value, :status
+
+  def self.status
+    @@status
+  end
 
   def self.routine
     @@routine
@@ -47,18 +51,6 @@ class EditRoutineWidget < Qt::Widget
     @lcd
   end
 
-  def self.back
-    @@back
-  end
-
-  def self.quit
-    @@quit
-  end
-
-  def self.done
-    @@done
-  end
-
   def initialize()
       super()
 
@@ -78,9 +70,7 @@ class EditRoutineWidget < Qt::Widget
     @@practice_count = routine.practice_count
     @@success_count = routine.success_count
     @@last_success_value = routine.last_success_value
-    @@back = false
-    @@done = false
-    @@quit = false
+    @@status = ""
 
     priorityText = "
       1: Need to brush up on this one!!!
@@ -177,14 +167,14 @@ class EditRoutineWidget < Qt::Widget
     back_button.resize 30, 20
     grid.addWidget(back_button, 11, 0)
     connect(back_button, SIGNAL('clicked()')) { $qApp.quit
-      @@back = true }  #need back & exit buttons, too. See info button (commented out below)
+      @@status = :back }  #need back & exit buttons, too. See info button (commented out below)
 
     exit_button = Qt::PushButton.new self
     exit_button.setText "EXIT PROGRAM"
     exit_button.resize 30, 20
     grid.addWidget(exit_button, 11, 1)
     connect(exit_button, SIGNAL('clicked()')) { $qApp.quit
-      @@quit = true }  #need back & exit buttons, too. See info button (commented out below)
+      @@status = :quit }  #need back & exit buttons, too. See info button (commented out below)
 
     done_button = Qt::PushButton.new self
     done_button.setText "OK"
@@ -192,7 +182,7 @@ class EditRoutineWidget < Qt::Widget
 #    done_button.setPalette( Qt::red )
     grid.addWidget(done_button, 11, 2)
     connect(done_button, SIGNAL('clicked()')) { $qApp.quit
-      @@done = true }  #need back & exit buttons, too. See info button (commented out below)
+      @@status = :done }  #need back & exit buttons, too. See info button (commented out below)
 
     setLayout(grid)
 
@@ -265,7 +255,7 @@ class EditRoutineWidget < Qt::Widget
 #    edit_routine.last_success_value = routine.last_success_value
     edit_routine.init_ui
     app.exec
-    return nombre, link, priority, practice_count, success_count, last_success_value, back, done, quit
+    return nombre, link, priority, practice_count, success_count, last_success_value, status
   end
 end
 
