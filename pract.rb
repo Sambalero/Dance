@@ -261,12 +261,12 @@ puts "status in get_new_routine: #{status}"
   end
 
   def build_set(new_set_name, new_routines, practice_sets, practice_set_names) #called by get_first_routine
-      new_set = PracticeSet.new(new_set_name, 0, new_routines)
-      practice_sets.push(new_set)
-      practice_set_names.push(new_set_name)
-      write_practice_sets(practice_sets)
-      practice_sets, practice_set_names = marshal
-      choose_set_to_practice(practice_sets, practice_set_names)
+    new_set = PracticeSet.new(new_set_name, 0, new_routines)
+    practice_sets.push(new_set)
+    practice_set_names.push(new_set_name)
+    write_practice_sets(practice_sets)
+    practice_sets, practice_set_names = marshal
+    choose_set_to_practice(practice_sets, practice_set_names)
   end
 
   def delete_a_set(practice_sets, practice_set_names)
@@ -309,7 +309,7 @@ puts "in practice routines / add routine"        #is quit being returned here?
         practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
       end
       if response == :back then choose_set_to_practice(practice_sets, practice_set_names) end
-      practice_routine(chosen_routine, routines_in_process, chosen_set)
+      practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets)
     end
     index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets)
   end
@@ -321,28 +321,28 @@ puts "index_session_count"
   end
 
   def edit_routine(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) #called by practice_routine
-        routine = RoutineToEditWidget.run_qt(chosen_set.routines)
-        routine_index = chosen_set.routines.index(routine)
-        rip_routine_index = routines_in_process.index(routine)
-        name, link, priority, practice_count, success_count, last_success_value, status = EditRoutineWidget.run_qt(routine)
+    routine = RoutineToEditWidget.run_qt(chosen_set.routines)
+    routine_index = chosen_set.routines.index(routine)
+    rip_routine_index = routines_in_process.index(routine)
+    name, link, priority, practice_count, success_count, last_success_value, status = EditRoutineWidget.run_qt(routine)
   #TODO test that each new name is unique
   #TODO update values in widget
   #TODO increment success count with last success value change
-        if status == :done
-          routine.name = name
-          routine.link = link
-          routine.priority = priority
-          routine.practice_count = practice_count
-          routine.success_count = success_count
-          if last_success_value
-           routine.last_success_value = (routine.last_success_value ==  0.1 ? 1 : 0.1)
-          end
-          chosen_set.routines[routine_index] = routine
-          routines_in_process[rip_routine_index] = routine
-          practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
-        end
-        if status == :back then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
-        if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
+    if status == :done
+      routine.name = name
+      routine.link = link
+      routine.priority = priority
+      routine.practice_count = practice_count
+      routine.success_count = success_count
+      if last_success_value
+       routine.last_success_value = (routine.last_success_value ==  0.1 ? 1 : 0.1)
+      end
+      chosen_set.routines[routine_index] = routine
+      routines_in_process[rip_routine_index] = routine
+      practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
+    end
+    if status == :back then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
+    if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
   end
 
   def add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size) #called by practice_routines
@@ -388,32 +388,34 @@ puts "new_routine in add_routine = #{new_routine}"
   def delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)   # called by delete_routine
     routines_to_delete.each do |routine_to_delete|
 
-      chosen_set.routines.each do |routine|
-        chosen_set.routines.delete(routine) if routine_to_delete.name == routine.name
-      end
+    chosen_set.routines.each do |routine|
+      chosen_set.routines.delete(routine) if routine_to_delete.name == routine.name
+    end
 
-      routines_in_process.each do |routine|
-        routines_in_process.delete(routine) if routine_to_delete.name == routine.name
-      end
-      initial_set_size -= 1
+    routines_in_process.each do |routine|
+      routines_in_process.delete(routine) if routine_to_delete.name == routine.name
+    end
+    initial_set_size -= 1
     end
   end
 
-  def practice_routine(chosen_routine, routines_in_process, chosen_set)   #TODO when out of routines, "that's all the routines. do you want to practice another set?"
-         performance_rating, quit, pass = HowDidYouDoWidget.run_qt(chosen_routine) #TODO if == 5, change priority?   if quit?
+  def practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets)  #called by practice_routines
+  #TODO when out of routines, "that's all the routines. do you want to practice another set?"
+    performance_rating, quit, pass = HowDidYouDoWidget.run_qt(chosen_routine) #TODO if == 5, change priority?   if quit?
+    if quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
 
-        if (pass or performance_rating == 0)
-          routines_in_process.delete(chosen_routine)
+    if (pass or performance_rating == 0)      #TODO  don't index session count if nothing is practiced...(pass can be a problem)
+      routines_in_process.delete(chosen_routine)
 
-        else
-          if practice_success?(chosen_routine, performance_rating)
-            chosen_routine.index_success_counts
-          else
-            chosen_routine.last_success_value = 0.1
-          end
-          chosen_routine.index_practice_counts(chosen_set.session_count)
-          routines_in_process.delete(chosen_routine)
-        end
+    else
+      if practice_success?(chosen_routine, performance_rating)
+        chosen_routine.index_success_counts
+      else
+        chosen_routine.last_success_value = 0.1
+      end
+      chosen_routine.index_practice_counts(chosen_set.session_count)
+      routines_in_process.delete(chosen_routine)
+    end
   end
 
   def practice_success?(routine, response) #called by practice_routines
