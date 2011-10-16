@@ -8,6 +8,10 @@ class DeleteRoutineWidget < Qt::Widget
 
     attr_accessor :routines_to_delete, :routines, :quit
 
+  def self.status
+    @@status
+  end
+
   def self.quit
     @@quit
   end
@@ -35,6 +39,7 @@ class DeleteRoutineWidget < Qt::Widget
 
   def init_ui()
 
+    @@status = ""
     @@quit = false
     @@routines_to_delete = []
 
@@ -49,14 +54,22 @@ class DeleteRoutineWidget < Qt::Widget
 
     done_button = Qt::PushButton.new 'DONE'
     connect(done_button, SIGNAL('clicked()')) {
+       @@status = :done
        $qApp.quit}
     grid.addWidget(done_button, i, 0)
 
 
     quit_button = Qt::PushButton.new 'Exit Program'
     connect(quit_button, SIGNAL('clicked()')) {@@quit = true
-       $qApp.quit}
+      @@status = :quit
+      $qApp.quit}
     grid.addWidget(quit_button, i+1, 0)
+
+    back_button = Qt::PushButton.new 'Back'
+    connect(back_button, SIGNAL('clicked()')) {
+      @@status = :back
+      $qApp.quit}
+    grid.addWidget(back_button, i+2, 0)
 
     layout = Qt::VBoxLayout.new()
     layout.addLayout(grid)
@@ -76,7 +89,7 @@ class DeleteRoutineWidget < Qt::Widget
     choose_routine.routines = routines
     choose_routine.init_ui
     app.exec
-    return choose_routine.routines_to_delete, quit
+    return choose_routine.routines_to_delete, status
   end
 end
 

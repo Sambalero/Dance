@@ -284,12 +284,16 @@ puts "status in get_new_routine: #{status}"
     chosen_set_index = practice_set_names.index(chosen_set_name)
     chosen_set = practice_sets[chosen_set_index]
     chosen_set.sort_routines_by_score
-    practice_routines(chosen_set, practice_sets, practice_set_names)
+    set_up_practice_routines(chosen_set, practice_sets, practice_set_names)
   end
 
-  def practice_routines(chosen_set, practice_sets, practice_set_names) # called by choose_set_to_practice, self
+  def set_up_practice_routines(chosen_set, practice_sets, practice_set_names)  # called by practice_chosen_set
     initial_set_size = chosen_set.routines.length
     routines_in_process = chosen_set.routines.clone
+    practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
+  end
+
+  def practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) # called by set_up_practice_routines, self, delete_routines
     while routines_in_process != []
       chosen_routine, response = ChooseRoutineToPracticeWidget.run_qt(routines_in_process)
 puts "in practice routines response = #{response}"
@@ -298,9 +302,12 @@ puts "in practice routines response = #{response}"
       if response == :add_routine
         add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size)
 puts "in practice routines / add routine"        #is quit being returned here?
-        practice_routines(chosen_set, practice_sets, practice_set_names)
+        practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
       end
-      if response == :delete_routine then delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names) end
+      if response == :delete_routine
+        delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names)
+        practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
+      end
       if response == :back then choose_set_to_practice(practice_sets, practice_set_names) end
       practice_routine(chosen_routine, routines_in_process, chosen_set)
     end
@@ -373,13 +380,14 @@ puts "new_routine in add_routine = #{new_routine}"
   end
 
   def delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names)
-        routines_to_delete, quit = DeleteRoutineWidget.run_qt(chosen_set.routines)
-        if quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
-        if routines_to_delete == (nil or []) then practice_routines(chosen_set, practice_sets, practice_set_names) end
-        delete_routines(routines_in_process, chosen_set, routines_to_delete)
-        end
+    routines_to_delete, status = DeleteRoutineWidget.run_qt(chosen_set.routines)
+    if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
+    if status == :back then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
+    if routines_to_delete == (nil or []) then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
+    delete_routines(routines_in_process, chosen_set, routines_to_delete)                                    #returns to show
+  end
 
-  def delete_routines(routines_in_process, chosen_set, routines_to_delete)
+  def delete_routines(routines_in_process, chosen_set, routines_to_delete)   # called by practice_routines
     routines_to_delete.each do |rtd|
 
       chosen_set.routines.each do |routine|
