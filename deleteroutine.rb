@@ -60,7 +60,7 @@ class DeleteRoutineWidget < Qt::Widget
 
 
     quit_button = Qt::PushButton.new 'Exit Program'
-    connect(quit_button, SIGNAL('clicked()')) {@@quit = true
+    connect(quit_button, SIGNAL('clicked()')) {
       @@status = :quit
       $qApp.quit}
     grid.addWidget(quit_button, i+1, 0)

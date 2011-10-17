@@ -401,12 +401,13 @@ puts "new_routine in add_routine = #{new_routine}"
 
   def practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets)  #called by practice_routines
   #TODO when out of routines, "that's all the routines. do you want to practice another set?"
-    performance_rating, quit, pass = HowDidYouDoWidget.run_qt(chosen_routine) #TODO if == 5, change priority?   if quit?
-    if quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
-
-    if (pass or performance_rating == 0)      #TODO  don't index session count if nothing is practiced...(pass can be a problem)
+    performance_rating, status = HowDidYouDoWidget.run_qt(chosen_routine) #TODO if == 5, change priority?   if quit?
+puts "status in practice_routine = #{status}"
+puts "performance_rating in practice_routine = #{performance_rating}"
+    if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
+    if status == :pass
+      initial_set_size -= 1
       routines_in_process.delete(chosen_routine)
-
     else
       if practice_success?(chosen_routine, performance_rating)
         chosen_routine.index_success_counts
@@ -421,6 +422,7 @@ puts "new_routine in add_routine = #{new_routine}"
   def practice_success?(routine, response) #called by practice_routines
     response == 5 or (response == 4 and routine.priority < 4)
   end
+
 end
 
 

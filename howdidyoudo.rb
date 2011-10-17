@@ -3,10 +3,10 @@ require 'Qt4'
 class HowDidYouDoWidget < Qt::Widget
 #called by trainer.suggest_routine
 #TODO close demo window with widget exit
-    attr_accessor :performance_rating, :next_routine
-                                                     #is quit actually returned?
-  def self.quit
-    @@quit
+    attr_accessor :performance_rating, :next_routine, :status
+
+  def self.status
+    @@status
   end
 
   def performance_rating
@@ -29,10 +29,6 @@ class HowDidYouDoWidget < Qt::Widget
     @lcd
   end
 
-  def self.pass
-    @@pass
-  end
-
   def initialize()
     super()
     setWindowTitle "HOW DID YOU DO?"
@@ -44,9 +40,8 @@ class HowDidYouDoWidget < Qt::Widget
 
   def init_ui()
 
-    @@performance_rating = 0
-    @@quit = false
-    @@pass = false
+    @@performance_rating = 1
+    @@status = ""
     @@next_routine = false
 
     rankingsText =
@@ -66,8 +61,8 @@ class HowDidYouDoWidget < Qt::Widget
     @lcd.setAutoFillBackground(true)
 #slider
     @slider = Qt::Slider.new(Qt::Horizontal, self)
-    @slider.setRange(0, 5)
-    @slider.setValue(0)
+    @slider.setRange(1, 5)
+    @slider.setValue(1)
 #buttons
     @next_routine_button = Qt::PushButton.new "NEXT"
     @next_routine_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
@@ -78,12 +73,13 @@ class HowDidYouDoWidget < Qt::Widget
     @quit_button = Qt::PushButton.new "EXIT PROGRAM"
     @quit_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
 #connections
-    connect(@quit_button, SIGNAL('clicked()')) {@@quit = true
+    connect(@quit_button, SIGNAL('clicked()')) {@@status = :quit
       $qApp.quit}
     connect(@launch_file_button, SIGNAL('clicked()')) {launch_routine_file}
-    connect(@pass_button, SIGNAL('clicked()')) {@@pass = true
+    connect(@pass_button, SIGNAL('clicked()')) {@@status = :pass
       $qApp.quit}
-    connect(@next_routine_button, SIGNAL('clicked()')) {$qApp.quit}
+    connect(@next_routine_button, SIGNAL('clicked()')) {@@status = :next
+      $qApp.quit}
     connect(@slider, SIGNAL('valueChanged(int)'), @lcd, SLOT('display(int)'))
     connect(@slider, SIGNAL('valueChanged(int)')) {@@performance_rating = @slider.value}
 #layout
@@ -98,13 +94,13 @@ class HowDidYouDoWidget < Qt::Widget
     setLayout(grid)
 
   end
-
+ #TODO check old note
   def launch_routine_file #called by init_ui
     if /text/ =~ routine.link
-     #show message
+     puts "show message: #{routine.link}"
     else
-      fork do       #maybe this wants to be spawn?
-      exec "open #{routine.link}"
+      fork do      # maybe this wants to be spawn?
+      exec "open {routine.link}"
       end
     end
   end
@@ -115,6 +111,6 @@ class HowDidYouDoWidget < Qt::Widget
     @@routine = routine
     performance_rating = HowDidYouDoWidget.new #need a better name
     app.exec
-    return performance_rating.performance_rating, quit, pass
+    return performance_rating.performance_rating, status
   end
 end
