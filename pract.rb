@@ -404,6 +404,10 @@ puts "new_routine in add_routine = #{new_routine}"
     performance_rating, status = HowDidYouDoWidget.run_qt(chosen_routine) #TODO if == 5, change priority?   if quit?
 puts "status in practice_routine = #{status}"
 puts "performance_rating in practice_routine = #{performance_rating}"
+    if status == :show
+      launch_routine_file(chosen_routine)
+      practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets)
+    end
     if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
     if status == :pass
       initial_set_size -= 1
@@ -423,6 +427,27 @@ puts "performance_rating in practice_routine = #{performance_rating}"
     response == 5 or (response == 4 and routine.priority < 4)
   end
 
+ #TODO --what if we return to pract then re-call how_did_you_do?
+  def launch_routine_file(routine) #called by init_ui
+  puts "file: #{routine.link}"
+    if File.exist? routine.link then puts "file exists" end
+    if !(routine.link =~ URI::regexp).nil? then puts "is uri" end
+
+    if File.exist? routine.link or !(routine.link =~ URI::regexp).nil?
+      fork do      # maybe this wants to be spawn?
+      puts "in fork"
+      exec "open #{routine.link}"
+      end
+    else
+      puts "calling message box"
+        MessageBoxWidget.run_qt(routine.link)
+    end
+  end
+
+#fork doesn't work in windows
+#for windows this might be "cmd /c start pathtofile\filename"
+# I want to reset focus to terminal; maybe wait for linked file to close
+# open terminal may work, but first the delay
 end
 
 

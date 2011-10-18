@@ -122,11 +122,12 @@ class EditRoutineWidget < Qt::Widget
     @lcd.setSegmentStyle(Qt::LCDNumber::Filled)
     @lcd.setPalette(Qt::Palette.new(Qt::Color.new(250, 250, 200)))
     @lcd.setAutoFillBackground(true)
+    @lcd.display(@@priority)
     grid.addWidget(@lcd, 5, 2)
 
     @slider = Qt::Slider.new(Qt::Horizontal, self)
-    @slider.setRange(0, 5)
-    @slider.setValue(0)
+    @slider.setRange(1, 5)
+    @slider.setValue(@@priority)
     connect(@slider, SIGNAL('valueChanged(int)'), @lcd, SLOT('display(int)'))
     connect(@slider, SIGNAL('valueChanged(int)')) {@@priority = @slider.value}
     grid.addWidget(@slider, 6, 2)
@@ -153,12 +154,15 @@ class EditRoutineWidget < Qt::Widget
     grid.addWidget(@edit_success_count, 9, 2)
 
     last_success_value_label = Qt::Label.new(self)
-      success = routine.last_success_value == 0.1 ? "No" : "Yes"
+      success = @@last_success_value == 0.1 ? "No" : "Yes"
     last_success_value_label.setText "Last practice successful? #{success}"
     last_success_button = Qt::PushButton.new self
     last_success_button.setText "CHANGE"
     last_success_button.resize 30, 20
-    connect(last_success_button, SIGNAL('clicked()')) { @@last_success_value = true }
+    connect(last_success_button, SIGNAL('clicked()')) {
+      @@last_success_value = true
+      success = @@last_success_value == "Yes" ? "No" : "Yes"
+      last_success_value_label.setText "Last practice successful? #{success}"}
     grid.addWidget(last_success_value_label, 10, 0)
     grid.addWidget(last_success_button, 10, 2)
 
@@ -167,14 +171,14 @@ class EditRoutineWidget < Qt::Widget
     back_button.resize 30, 20
     grid.addWidget(back_button, 11, 0)
     connect(back_button, SIGNAL('clicked()')) { $qApp.quit
-      @@status = :back }  #need back & exit buttons, too. See info button (commented out below)
+      @@status = :back }
 
     exit_button = Qt::PushButton.new self
     exit_button.setText "EXIT PROGRAM"
     exit_button.resize 30, 20
     grid.addWidget(exit_button, 11, 1)
     connect(exit_button, SIGNAL('clicked()')) { $qApp.quit
-      @@status = :quit }  #need back & exit buttons, too. See info button (commented out below)
+      @@status = :quit }
 
     done_button = Qt::PushButton.new self
     done_button.setText "OK"
@@ -182,7 +186,7 @@ class EditRoutineWidget < Qt::Widget
 #    done_button.setPalette( Qt::red )
     grid.addWidget(done_button, 11, 2)
     connect(done_button, SIGNAL('clicked()')) { $qApp.quit
-      @@status = :done }  #need back & exit buttons, too. See info button (commented out below)
+      @@status = :done }
 
     setLayout(grid)
 

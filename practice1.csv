@@ -1,25 +1,43 @@
 Number of Sets,3,
 Name,Kevin and Ellen's,
-Number of Practice Sessions,22.0,
+Number of Practice Sessions,23.0,
 Number of Routines,3,
 Routine Name,Location,Priority,Practice Count,Success Count,Set Practice Count at Last Practice,Last Attempt Successful?,Last Date Practiced,Score
-Shag,~/prog/pract/practfiles/shag.flv,3.0,12.0,7.0,20.0,0.1,2011-07-31 20:32:27 -0700 ,3.227777777777778
-Waltz Sway & Pivot,~/prog/pract/practfiles/Wal.txt,3.0,13.0,7.0,21.0,0.1,2011-07-31 20:32:27 -0700 ,3.319230769230769
-Jordan and Tatiana WCS,http://www.youtube.com/watch?v=V3ZxiPKmacg,4.0,12.0,3.0,19.0,0.1,2011-07-31 20:32:27 -0700 ,4.0875
+Shag,/Users/kevinswallow/prog/pract/practfiles/shag.flv,3.0,12.0,7.0,20.0,0.1,2011-07-31 20:32:27 -0700 ,3.1708333333
+Waltz Sway & Pivot,"Waltz note\n\n--L shaped \n--right hip connectio\n--sway 2 and 5\n\nKevin:\n--backward arch, esp 2 & 5--square to slot on 1--step straight back on 1\nEllen:\n--long 3 and 6\n--rightward arch and weight\n\nPivot:\n--outward weighting\n--relaxed\n- high connection\n",3.0,14.0,7.0,22.0,0.1,2011-07-31 20:32:27 -0700 ,3.3
+Jordan and Tatiana WCS,http://www.youtube.com/watch?v=V3ZxiPKmacg,4.0,12.0,3.0,19.0,0.1,2011-07-31 20:32:27 -0700 ,4.07
 Name,Kevin's,
-Number of Practice Sessions,31.0,
+Number of Practice Sessions,34.0,
 Number of Routines,3,
 Routine Name,Location,Priority,Practice Count,Success Count,Set Practice Count at Last Practice,Last Attempt Successful?,Last Date Practiced,Score
-JT WestCoast,kjh;n;lj;oin;kn;lilk;lji,0.0,12.0,4.0,20.0,1.0,2011-07-31 20:32:27 -0700 ,0.0393939393939394
-Carolina Shag,~/prog/pract/practfiles/shag.flv,1.0,12.0,6.0,19.0,0.1,2011-07-31 20:32:27 -0700 ,1.05
-Waltz,~/prog/pract/practfiles/Wal.txt,3.0,23.0,2.0,29.0,0.1,2011-07-31 20:32:27 -0700 ,3.0934782608695652
+JT WestCoast,http://www.youtube.com/watch?v=V3ZxiPKmacg,0.0,13.0,4.0,31.0,0.1,2011-07-31 20:32:27 -0700 ,0.1019230769
+Carolina Shag,~/prog/pract/practfiles/shag.flv,1.0,13.0,6.0,31.0,0.1,2011-07-31 20:32:27 -0700 ,1.1403846154
+Waltz,/Users/kevinswallow/prog/pract/practfiles/Wal.txt,3.0,26.0,2.0,33.0,0.1,2011-07-31 20:32:27 -0700 ,3.0884615385
 Name,bailly,
-Number of Practice Sessions,10.0,
+Number of Practice Sessions,12.0,
 Number of Routines,6,
 Routine Name,Location,Priority,Practice Count,Success Count,Set Practice Count at Last Practice,Last Attempt Successful?,Last Date Practiced,Score
-me,xxx,1.0,0.0,0.0,0.0,1.0,2011-10-14 18:32:20 -0700,1.01
-luh,adf,1.0,0.0,0.0,0.0,0.1,2011-10-14 18:05:52 -0700,1.01
-bill,fred,1.0,0.0,0.0,0.0,0.1,2011-10-14 18:06:36 -0700,1.01
-xxx,yyy,1.0,1.0,0.0,7.0,0.1,2011-10-14 18:30:07 -0700,1.0333333333333334
-fred,bill,1.0,2.0,0.0,8.0,0.1,2011-10-14 18:27:49 -0700,1.05
-dd,dg,2.0,3.0,0.0,9.0,0.1,2011-10-14 18:04:58 -0700,2.05
+me,"""#{Waltz notes
+
+--L shaped 1
+--right hip connection
+--sway 2 and 5
+
+Kevin:
+--backward arch, esp 2 & 5
+--square to slot on 1
+--step straight back on 1
+
+Ellen: 
+--long 3 and 6
+--rightward arch and weight
+
+Pivot:
+--outward weighting
+--relaxed
+- high connection}""",1.0,0.0,0.0,0.0,1.0,2011-10-14 18:32:20 -0700,1.0083333333333333
+luh,adf,1.0,0.0,0.0,0.0,0.1,2011-10-14 18:05:52 -0700,1.0083333333333333
+bill,fred,1.0,0.0,0.0,0.0,0.1,2011-10-14 18:06:36 -0700,1.0083333333333333
+xxx,yyy,1.0,1.0,0.0,7.0,0.1,2011-10-14 18:30:07 -0700,1.02
+fred,bill,1.0,3.0,0.0,10.0,0.1,2011-10-14 18:27:49 -0700,1.05
+dd,dg,2.0,6.0,0.0,11.0,0.1,2011-10-14 18:04:58 -0700,2.05

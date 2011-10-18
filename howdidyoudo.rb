@@ -1,4 +1,5 @@
 require 'Qt4'
+require 'uri'
 
 class HowDidYouDoWidget < Qt::Widget
 #called by trainer.suggest_routine
@@ -75,7 +76,8 @@ class HowDidYouDoWidget < Qt::Widget
 #connections
     connect(@quit_button, SIGNAL('clicked()')) {@@status = :quit
       $qApp.quit}
-    connect(@launch_file_button, SIGNAL('clicked()')) {launch_routine_file}
+    connect(@launch_file_button, SIGNAL('clicked()')) {@@status = :show
+      $qApp.quit}
     connect(@pass_button, SIGNAL('clicked()')) {@@status = :pass
       $qApp.quit}
     connect(@next_routine_button, SIGNAL('clicked()')) {@@status = :next
@@ -94,17 +96,6 @@ class HowDidYouDoWidget < Qt::Widget
     setLayout(grid)
 
   end
- #TODO check old note
-  def launch_routine_file #called by init_ui
-    if /text/ =~ routine.link
-     puts "show message: #{routine.link}"
-    else
-      fork do      # maybe this wants to be spawn?
-      exec "open {routine.link}"
-      end
-    end
-  end
-
 
   def self.run_qt(routine)
     app = Qt::Application.new ARGV
