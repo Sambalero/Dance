@@ -17,7 +17,7 @@ Name,bailly,
 Number of Practice Sessions,12.0,
 Number of Routines,6,
 Routine Name,Location,Priority,Practice Count,Success Count,Set Practice Count at Last Practice,Last Attempt Successful?,Last Date Practiced,Score
-me,"""#{Waltz notes
+me,"Waltz notes
 
 --L shaped 1
 --right hip connection
@@ -35,9 +35,9 @@ Ellen:
 Pivot:
 --outward weighting
 --relaxed
-- high connection}""",1.0,0.0,0.0,0.0,1.0,2011-10-14 18:32:20 -0700,1.0083333333333333
-luh,adf,1.0,0.0,0.0,0.0,0.1,2011-10-14 18:05:52 -0700,1.0083333333333333
-bill,fred,1.0,0.0,0.0,0.0,0.1,2011-10-14 18:06:36 -0700,1.0083333333333333
-xxx,yyy,1.0,1.0,0.0,7.0,0.1,2011-10-14 18:30:07 -0700,1.02
-fred,bill,1.0,3.0,0.0,10.0,0.1,2011-10-14 18:27:49 -0700,1.05
+- high connection",1.0,0.0,0.0,0.0,1.0,2011-10-14 18:32:20 -0700,1.0076923076923077
+luh,adf,1.0,0.0,0.0,0.0,0.1,2011-10-14 18:05:52 -0700,1.0076923076923077
+bill,fred,1.0,0.0,0.0,0.0,0.1,2011-10-14 18:06:36 -0700,1.0076923076923077
+xxx,yyy,1.0,1.0,0.0,7.0,0.1,2011-10-14 18:30:07 -0700,1.0166666666666666
+fred,bill,1.0,3.0,0.0,10.0,0.1,2011-10-14 18:27:49 -0700,1.0333333333333334
 dd,dg,2.0,6.0,0.0,11.0,0.1,2011-10-14 18:04:58 -0700,2.05

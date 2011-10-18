@@ -109,16 +109,7 @@ class EditRoutineWidget < Qt::Widget
     grid.addWidget(link_label, 3, 0, 1, 3)
     grid.addWidget(@edit_link, 4, 0, 1, 3)
 
-#    priority_label = Qt::Label.new(self)
-#    priority_label.setText "Priority: #{routine.priority}"
-#    @edit_priority = Qt::LineEdit.new self
-#    connect @edit_priority, SIGNAL("textChanged(QString)"),
-#            self, SLOT("new_priority(QString)")
-#    grid.addWidget(priority_label, 3, 0)
-#    grid.addWidget(@edit_priority, 3, 2)
-
-
-    @lcd = Qt::LCDNumber.new(2)        #-------------NEW STUFF STARTS HERE
+    @lcd = Qt::LCDNumber.new(2)
     @lcd.setSegmentStyle(Qt::LCDNumber::Filled)
     @lcd.setPalette(Qt::Palette.new(Qt::Color.new(250, 250, 200)))
     @lcd.setAutoFillBackground(true)
@@ -192,7 +183,6 @@ class EditRoutineWidget < Qt::Widget
 
   end
 
-#######################################XXXXXX
 # TODO need if nil or empty do what? (?)
   def new_name text
     if text != nil
@@ -212,16 +202,7 @@ class EditRoutineWidget < Qt::Widget
     end
   end
 
-#    def new_priority text
-#    if text != nil
-#      priority = text.strip
-#      if (not priority.empty?) and is_numeric?(priority)
-#        @@priority = @edit_priority.text.to_f
-#      end
-#    end
-#  end
-
-    def new_practice_count text
+  def new_practice_count text
     if text != nil
       practice_count = text.strip
       if (not practice_count.empty?) and is_numeric?(practice_count)
@@ -230,7 +211,7 @@ class EditRoutineWidget < Qt::Widget
     end
   end
 
-    def new_success_count text
+  def new_success_count text
     if text != nil
       success_count = text.strip
       if (not success_count.empty?) and  is_numeric?(success_count)
@@ -239,24 +220,10 @@ class EditRoutineWidget < Qt::Widget
     end
   end
 
-
-#  def launch_priority_info #called by init_ui
-#    fork do       #maybe this wants to be spawn?
-#      exec "open ~/prog/pract/practfiles/Priority.rtf"
-#    end
-#  end
-
-
   def self.run_qt(routine)
     app = Qt::Application.new ARGV
     edit_routine = EditRoutineWidget.new
     edit_routine.routine = routine
-#    edit_routine.nombre = routine.nombre
-#    edit_routine.link = routine.link
-#    edit_routine.priority = routine.priority
-#    edit_routine.practice_count = routine.practice_count
-#    edit_routine.success_count = routine.success_count
-#    edit_routine.last_success_value = routine.last_success_value
     edit_routine.init_ui
     app.exec
     return nombre, link, priority, practice_count, success_count, last_success_value, status

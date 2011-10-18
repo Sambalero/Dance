@@ -427,19 +427,13 @@ puts "performance_rating in practice_routine = #{performance_rating}"
     response == 5 or (response == 4 and routine.priority < 4)
   end
 
- #TODO --what if we return to pract then re-call how_did_you_do?
-  def launch_routine_file(routine) #called by init_ui
-  puts "file: #{routine.link}"
-    if File.exist? routine.link then puts "file exists" end
-    if !(routine.link =~ URI::regexp).nil? then puts "is uri" end
-
-    if File.exist? routine.link or !(routine.link =~ URI::regexp).nil?
+  def launch_routine_file(routine) #called by practice_routine
+    if File.exist? routine.link or (routine.link =~ (URI::DEFAULT_PARSER.regexp[:ABS_URI]))
       fork do      # maybe this wants to be spawn?
       puts "in fork"
       exec "open #{routine.link}"
       end
     else
-      puts "calling message box"
         MessageBoxWidget.run_qt(routine.link)
     end
   end
