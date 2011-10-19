@@ -36,13 +36,10 @@
 
 ################TODO*****IN PROCESS*****TODO#################   test, addroutine
 #TODO make sure exits save properly
-#TODO develop text option in place of link for show routine
 #TODO can widget buttons change color or something when clicked?   Also, activate input boxes when button clicked (add routine, add set)
-#TODO confirm: does add routine update the set routine count?
 #TODO clean up variable scope in widgets
 #TODO reorder method definitions
 #TODO set up for second column in chooseroutine, better window positioning
-#TODO get time working in added routine; NOTE: it works when called from add_set
 #Keith's suggestions
 # split trainer between object management and training
 #	consider getting rapid gui development with qt ruby by pragmatic press
@@ -58,20 +55,6 @@
 #
 
 #add note: git test
-#Use the URI module distributed with Ruby: ---need require 'uri'  ?
-#   (determine if is url)
-#require 'uri'
-#
-#unless (url =~ URI::regexp).nil?
-#    # Correct URL
-#end
-#
-#File need require 'file'?
-#A File is an abstraction of any file object accessible by the program and is closely associated with class IO File includes the methods of module FileTest as class methods, allowing you to write (for example) File.exist?("foo").
-#
-#exist?(file_name) → true or false
-#exists?(file_name) → true or false
-#Return true if the named file exists.
 
 require_relative 'marshaller'
 require_relative 'addset'
@@ -245,7 +228,7 @@ puts "status in get_new_routine: #{status}"
     if (link != nil and !link.empty?) then return true end
     MessageBoxWidget.run_qt("Please enter something in the link field.")
     return false
-  end
+    end
 
   def build_routine(new_routine_name = "", new_routine_link = "", priority = 1)  #?""
     routine = Routine.new({
@@ -293,15 +276,13 @@ puts "status in get_new_routine: #{status}"
     practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
   end
 
-  def practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) # called by set_up_practice_routines, self, delete_routines, edit_routine
+  def practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) # called by set_up_practice_routines, self, delete_routines, edit_routine, add_routine
     while routines_in_process != []
       chosen_routine, response = ChooseRoutineToPracticeWidget.run_qt(routines_in_process)
-puts "in practice routines response = #{response}"
       if response == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
       if response == :edit_routine then edit_routine(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
       if response == :add_routine
         add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size)
-puts "in practice routines / add routine"        #is quit being returned here?
         practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
       end
       if response == :delete_routine
@@ -315,7 +296,6 @@ puts "in practice routines / add routine"        #is quit being returned here?
   end
 
   def index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets)
-puts "index_session_count"
     if routines_in_process.length < initial_set_size then chosen_set.session_count +=1 end
     at_exit(practice_sets)
   end
@@ -347,23 +327,28 @@ puts "index_session_count"
 
   def add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size) #called by practice_routines
     new_routine = get_new_routine
-puts "new_routine in add_routine = #{new_routine}"
     if new_routine == "back" then practice_routines(chosen_set, practice_sets, practice_set_names) end
-    if new_routine == "quit" then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end  #########???????
+    if new_routine == "quit" then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
     if new_routine.class == Routine
-      chosen_set.routines.push(new_routine) #need to re-create chosen set
-      write_practice_sets practice_sets   ###########????????????
-      practice_sets, practice_set_names = marshal #need to re-create routines in process from practice sets
+      chosen_set.routines.push(new_routine)
+      write_practice_sets practice_sets
+      practice_sets, practice_set_names = marshal
       chosen_set = get_new_chosen_set(practice_sets, chosen_set)
-      routines_in_process = re_create_routines_in_process(chosen_set, routines_in_process)
+      routines_in_process = re_create_routines_in_process(chosen_set, routines_in_process, new_routine)
       initial_set_size += 1
+      practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
     end
   end
 
-  def re_create_routines_in_process(chosen_set, routines_in_process) #called by add_routine
+  def re_create_routines_in_process(chosen_set, routines_in_process, new_routine) #called by add_routine
     new_routines_in_process = chosen_set.routines.clone
+    old_routines_in_process_names = []
+    routines_in_process.each do |routine|
+       old_routines_in_process_names.push(routine.name)
+    end
+    old_routines_in_process_names.push(new_routine.name)
     new_routines_in_process.each do |routine|
-      new_routines_in_process.delete routine if not routines_in_process.include? routine
+      new_routines_in_process.delete routine if not old_routines_in_process_names.include? routine.name
     end
     return new_routines_in_process
   end
@@ -382,10 +367,10 @@ puts "new_routine in add_routine = #{new_routine}"
     if status == :back then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
     if routines_to_delete == (nil or []) then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
     #TODO list routines to delete for user and confirm
-    delete_routines(routines_in_process, chosen_set, routines_to_delete)
+    delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)
   end
 
-  def delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)   # called by delete_routine
+  def delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)   # called by delete_routine TODO NOTE
     routines_to_delete.each do |routine_to_delete|
 
     chosen_set.routines.each do |routine|
