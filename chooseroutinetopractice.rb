@@ -29,7 +29,7 @@ attr_accessor :chosen_routine, :routines, :response
     super()
     setWindowTitle "CHOOSE A ROUTINE TO PRACTICE"
     resize 200, 180
-    move 100, 300
+#    move 100, 300
     show
   end
 
@@ -42,10 +42,16 @@ attr_accessor :chosen_routine, :routines, :response
     grid = Qt::GridLayout.new()
 
     i = 0
+    maxRoutineRows = 10
     for routine in routines
       init_button(routine)
-      grid.addWidget(@routine_button, i, 0)
-      grid.addWidget(@data_label, i, 1, 1, 3)
+      if i<maxRoutineRows
+        grid.addWidget(@routine_button, i, 0)
+        grid.addWidget(@data_label, i, 1, 1, 3)
+      else
+        grid.addWidget(@routine_button, i-maxRoutineRows, 5)
+        grid.addWidget(@data_label, i-maxRoutineRows, 6, 1, 3)
+      end
       i += 1
     end
 
@@ -80,7 +86,6 @@ attr_accessor :chosen_routine, :routines, :response
   end
 
   def init_button(routine)
-    since = (Time.now.to_i - routine.last_date_practiced.to_i)/60/24/60
     @routine_button = Qt::PushButton.new routine.name, self
     @routine_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     connect(@routine_button, SIGNAL('clicked()')) {
