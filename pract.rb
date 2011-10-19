@@ -414,10 +414,12 @@ puts "performance_rating in practice_routine = #{performance_rating}"
 
   def launch_routine_file(routine) #called by practice_routine
     if File.exist? routine.link or (routine.link =~ (URI::DEFAULT_PARSER.regexp[:ABS_URI]))
-      fork do      # maybe this wants to be spawn?
-      puts "in fork"
-      exec "open #{routine.link}"
-      end
+      pid = spawn "open #{routine.link}"
+      Process.detach(pid)
+
+#      fork do      # maybe this wants to be spawn?
+#      exec "open #{routine.link}"
+#      end
     else
         MessageBoxWidget.run_qt(routine.link)
     end
