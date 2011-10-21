@@ -34,12 +34,16 @@
 ####Todo how do I handle stuff in series?
 ####Todo track camera usage?
 
-################TODO*****IN PROCESS*****TODO#################   test, addroutine
+################TODO*****IN PROCESS*****TODO#################
+#TODO Keith's Suggestions:
+#TODO create system module/class that will identify the system it is running on and include all system dependent differences
+#TODO develop only on mac
+#TODO if windows then .... else ....
+#TODO test addroutine
 #TODO make sure exits save properly
 #TODO can widget buttons change color or something when clicked?   Also, activate input boxes when button clicked (add routine, add set)
 #TODO clean up variable scope in widgets
 #TODO reorder method definitions
-#TODO set up for second column in chooseroutine, better window positioning
 #Keith's suggestions
 # split trainer between object management and training
 #	consider getting rapid gui development with qt ruby by pragmatic press
@@ -67,6 +71,7 @@ require_relative 'howdidyoudo'
 require_relative 'deleteroutine'
 require_relative 'settodelete'
 require_relative 'messagebox'
+require_relative 'os'
 #require_relative 'testWidget'
 
 $FILEPATH = '~/prog/pract/practfiles/'
@@ -141,11 +146,14 @@ end
 class Trainer
 
   include Marshaller
+  include Os
 ####  include widgets
 
   def main #called at startup
 #  test = TestWidget.run_qt("word")
 #  puts "test = #{test}"
+  os = identify
+  puts "Operating System is #{os}"
     practice_sets = []
     if File.exist? FILENAME
       practice_sets, practice_set_names = marshal
@@ -203,8 +211,8 @@ class Trainer
     return false
   end
 
-  def get_new_routine(new_routine_name = "", new_routine_link = "", priority = 1)# called by add_a_set, add_routine   TODO delete priority from param list?
-    name, link, status, priority = AddRoutineWidget.run_qt(new_routine_name, new_routine_link, priority)
+  def get_new_routine(new_routine_name = "", new_routine_link = "") # called by get_first_routine, add_routine, self
+    name, link, status, priority = AddRoutineWidget.run_qt(new_routine_name, new_routine_link)
 puts "status in get_new_routine: #{status}"
     if status == :quit then return "quit" end
     if status == :back then return "back" end
@@ -230,7 +238,7 @@ puts "status in get_new_routine: #{status}"
     return false
     end
 
-  def build_routine(new_routine_name = "", new_routine_link = "", priority = 1)  #?""
+  def build_routine(new_routine_name, new_routine_link, priority = 1)
     routine = Routine.new({
       :name => new_routine_name,
       :link => new_routine_link,
