@@ -96,6 +96,7 @@ class EditRoutineWidget < Qt::Widget
     name_label = Qt::Label.new(self)
     name_label.setText "Name: #{routine.name}"
     @edit_name = Qt::LineEdit.new self
+    @edit_name.setText routine.name
     connect @edit_name, SIGNAL("textChanged(QString)"),
             self, SLOT("new_name(QString)")
     grid.addWidget(name_label, 1, 0, 1, 3)
@@ -104,6 +105,7 @@ class EditRoutineWidget < Qt::Widget
     link_label = Qt::Label.new(self)
     link_label.setText "Link: #{routine.link}"
     @edit_link = Qt::LineEdit.new self
+    @edit_link.setText routine.link
     connect @edit_link, SIGNAL("textChanged(QString)"),
             self, SLOT("new_link(QString)")
     grid.addWidget(link_label, 3, 0, 1, 3)

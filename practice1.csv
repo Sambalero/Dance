@@ -3,9 +3,9 @@ Name,Kevin and Ellen's,
 Number of Practice Sessions,23.0,
 Number of Routines,3,
 Routine Name,Location,Priority,Practice Count,Success Count,Set Practice Count at Last Practice,Last Attempt Successful?,Last Date Practiced,Score
-Shag,/Users/kevinswallow/prog/pract/practfiles/shag.flv,3.0,14.0,7.0,22.0,0.1,2011-05-30 20:32:27 -0700 ,3.227777777777778
-Waltz Sway & Pivot,~/prog/pract/practfiles/Wal.txt,3.0,13.0,7.0,21.0,0.1,2011-05-30 20:32:27 -0700 ,3.319230769230769
-Jordan and Tatiana WCS,http://www.youtube.com/watch?v=V3ZxiPKmacg,4.0,12.0,3.0,19.0,0.1,2011-05-30 20:32:27 -0700 ,4.0875
+Waltz Sway & Pivot,~/prog/pract/practfiles/Wal.txt,3.0,13.0,7.0,21.0,0.1,2011-05-30 20:32:27 -0700 ,3.212820512820513
+Shag,/Users/kevinswallow/prog/pract/practfiles/shag.flv,3.0,14.0,7.0,22.0,0.1,2011-05-30 20:32:27 -0700 ,3.3
+Jordan and Tatiana WCS,http://www.youtube.com/watch?v=V3ZxiPKmacg,4.0,12.0,3.0,19.0,0.1,2011-05-30 20:32:27 -0700 ,4.07
 Name,Kevin's,
 Number of Practice Sessions,21.0,
 Number of Routines,3,
@@ -14,13 +14,15 @@ Carolina Shag,~/prog/pract/practfiles/shag.flv,3.0,12.0,6.0,19.0,0.1,2011-05-30 
 Waltz,~/prog/pract/practfiles/Wal.txt,3.0,14.0,5.0,20.0,0.1,2011-05-30 20:32:27 -0700 ,3.2285714286
 JT WestCoast,~/prog/pract/practfiles/sd08.flv,4.0,12.0,4.0,20.0,0.1,2011-05-30 20:32:27 -0700 ,4.2166666667
 Name,Billy,
-Number of Practice Sessions,1.0,
-Number of Routines,7,
+Number of Practice Sessions,3.0,
+Number of Routines,9,
 Routine Name,Location,Priority,Practice Count,Success Count,Set Practice Count at Last Practice,Last Attempt Successful?,Last Date Practiced,Score
-Fred,Ethel,1.0,0.0,0.0,0.0,0.1,2011-10-18 13:24:47 -0700,1.05
-George,Monkey,1.0,0.0,0.0,0.0,0.1,2011-10-18 13:25:26 -0700,1.05
-hill,hill,1.0,0.0,0.0,0.0,0.1,2011-10-18 15:47:17 -0700,1.05
-hoyaw,hunh,1.0,0.0,0.0,0.0,0.1,2011-10-18 16:03:01 -0700,1.05
-me,happy,1.0,1.0,0.0,1.0,0.1,2011-10-18 16:49:07 -0700,1.05
-yes,no,1.0,0.0,0.0,0.0,0.1,2011-10-18 17:03:55 -0700,1.05
-why,not,1.0,0.0,0.0,0.0,0.1,2011-10-18 17:07:12 -0700,1.05
+Fred,Ethel,1.0,0.0,0.0,0.0,1.0,2011-10-18 13:24:47 -0700,1.025
+George,Monkey,1.0,0.0,0.0,0.0,0.1,2011-10-18 13:25:26 -0700,1.025
+hill,hill,1.0,0.0,0.0,0.0,0.1,2011-10-18 15:47:17 -0700,1.025
+yes,no,1.0,0.0,0.0,0.0,0.1,2011-10-18 17:03:55 -0700,1.025
+why,not,1.0,0.0,0.0,0.0,0.1,2011-10-18 17:07:12 -0700,1.025
+shag100,/Users/kevinswallow/prog/pract/practfiles/shag100.flv,1.0,0.0,0.0,0.0,0.1,2011-10-21 15:06:03 -0700,1.025
+me,happy,1.0,1.0,0.0,1.0,0.1,2011-10-18 16:49:07 -0700,1.0333333333333334
+Hip-Hop,http://www.learntodance.com/lessons/hip_hop_basics_101_clip.htm,1.0,3.0,0.0,2.0,0.1,2011-10-21 15:03:40 -0700,1.05
+hoyaw,hunh,1.0,2.0,0.0,3.0,0.1,2011-10-18 16:03:01 -0700,1.05

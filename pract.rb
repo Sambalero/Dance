@@ -74,8 +74,6 @@ require_relative 'messagebox'
 require_relative 'os'
 #require_relative 'testWidget'
 
-$FILEPATH = '~/prog/pract/practfiles/'
-
 def is_numeric?(string)
   true if Float(string) rescue false
 end
@@ -152,13 +150,14 @@ class Trainer
   def main #called at startup
 #  test = TestWidget.run_qt("word")
 #  puts "test = #{test}"
-  os = identify
+if identifyOS == "mac"
+  os = identifyOS
   puts "Operating System is #{os}"
+end
     practice_sets = []
     if File.exist? FILENAME
       practice_sets, practice_set_names = marshal
       choose_set_to_practice(practice_sets, practice_set_names)
-      puts "That's all for now. Goodbye" #delete this once all quits are working right
       write_practice_sets practice_sets
     else
       puts "I can't find your source file. Sorry."
@@ -378,7 +377,7 @@ puts "status in get_new_routine: #{status}"
     delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)
   end
 
-  def delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)   # called by delete_routine TODO NOTE
+  def delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)   # called by delete_routine
     routines_to_delete.each do |routine_to_delete|
 
     chosen_set.routines.each do |routine|
@@ -420,23 +419,6 @@ puts "performance_rating in practice_routine = #{performance_rating}"
     response == 5 or (response == 4 and routine.priority < 4)
   end
 
-  def launch_routine_file(routine) #called by practice_routine
-    if File.exist? routine.link or (routine.link =~ (URI::DEFAULT_PARSER.regexp[:ABS_URI]))
-      pid = spawn "open #{routine.link}"
-      Process.detach(pid)
-
-#      fork do      # maybe this wants to be spawn?
-#      exec "open #{routine.link}"
-#      end
-    else
-        MessageBoxWidget.run_qt(routine.link)
-    end
-  end
-
-#fork doesn't work in windows
-#for windows this might be "cmd /c start pathtofile\filename"
-# I want to reset focus to terminal; maybe wait for linked file to close
-# open terminal may work, but first the delay
 end
 
 
