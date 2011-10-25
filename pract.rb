@@ -325,7 +325,9 @@ puts "status in get_new_routine: #{status}"
        routine.last_success_value = (routine.last_success_value ==  0.1 ? 1 : 0.1)
       end
       chosen_set.routines[routine_index] = routine
-      routines_in_process[rip_routine_index] = routine
+      if rip_routine_index != nil
+        routines_in_process[rip_routine_index] = routine
+      end
       practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
     end
     if status == :back then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
@@ -404,7 +406,7 @@ puts "performance_rating in practice_routine = #{performance_rating}"
     if status == :pass
       initial_set_size -= 1
       routines_in_process.delete(chosen_routine)
-    else
+    else #status == next TODO: change next button to OK button
       if practice_success?(chosen_routine, performance_rating)
         chosen_routine.index_success_counts
       else
