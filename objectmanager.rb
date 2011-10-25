@@ -1,91 +1,14 @@
-# This program will
-#maybe we create the file if it doesn't already exist
-# 0. load the practice_sets file into an array of arrays
-# 1. display a list of practice sets to choose from
-# 2. ask the user which practice set he wants to do
-# 4. calculate a recommended practice sequence for this practice session
-#    (i.e. prioritize the routines list)
-# 5. display the recommended practice sequence to the user
-# 5a. each item in the sequence should have a link to a file describing what it is (this could be a text file or a video, or a set of videos in a folde:c)
-# 5b. each item in the sequence should have an opportunity for the user to input information (whether the user practiced it, whether the practice was successful, maybe a rating of how successful the practice was, maybe whether the practice was videorecorded)
-# 5c. it might be nice to tell the user statistical stuff about the practice history of that routine
-#6 enable the user to quit the program
-#7 save the user input for the next session
-#-----------------------------------------------------------------------------------------------
-#File Format
-#number of sets = sets.length => used by marshal
-#practicesets = array of practice set objects
-#  PracticeSet objects
-#    set name = set.name
-#    number of practice sessions = set.practice_count
-#    number of routines = set.routines.length => used by marshal
-#    [set of routines] = set.routines[0...routine_count]
-#    #Routine objects
-#	      name, = set.routines[i].name
-#	      link, = set.routines[i].link
-#	      priority  = set.routines[i].priority
-#	      practice count = set.routines[i].practice_count
-#	      success count = set.routines[i].success_count
-#	      set practice count at last practice = set.routines[i].last_routines_practice_count
-#	      last attempt successful? = set.routines[i].last_success_value
-#	      last time practiced  = set.routines[i].last_date_practiced
-#       score = set.routines[i].score
-#-------------------------------------------------------------------
-####Todo how do I handle stuff in series?
-####Todo track camera usage?
-
-################TODO*****IN PROCESS*****TODO#################
-#TODO Keith's Suggestions:
-#TODO create system module/class that will identify the system it is running on and include all system dependent differences
-#TODO develop only on mac
-#TODO if windows then .... else ....
-#TODO test addroutine
-#TODO make sure exits save properly
-#TODO can widget buttons change color or something when clicked?   Also, activate input boxes when button clicked (add routine, add set)
-#TODO clean up variable scope in widgets
-#TODO reorder method definitions
-#Keith's suggestions
-# split trainer between object management and training
-#	consider getting rapid gui development with qt ruby by pragmatic press
-#	may be available fromdemonoid
-#	test driven development
-#
-#check out	popen4 fork for windows?
-#look on	stackoverflow
-#	for 'spawn process windows ruby
-#	get pract fully running on osx, then take commands and wrap in unix class
-#	do same with windows
-#	do sniff to know which and (string match) - use appropriate object
-#
-
-#add note: git test
-
-require_relative 'marshaller'
-require_relative 'addset'
-require_relative 'choosesettopractice'
-require_relative 'chooseroutinetopractice'
-require_relative 'routinetoedit'
-require_relative 'editroutine'
-require_relative 'addroutine'
-require_relative 'howdidyoudo'
-require_relative 'deleteroutine'
-require_relative 'settodelete'
-require_relative 'messagebox'
-require_relative 'os'
-require_relative 'objects'
-#require_relative 'testWidget'
-
-def is_numeric?(string)
+def is_numeric?(string)     #TODO is this still used?
   true if Float(string) rescue false
 end
 
-class Trainer
+class ObjectManager
 
   include Marshaller
   include Os
 ####  include widgets
 
-  def main #called at startup
+  def main #called at startup  #TODO   PM
 #  test = TestWidget.run_qt("word")
 #  puts "test = #{test}"
 if identifyOS == "mac"
@@ -95,20 +18,20 @@ end
     practice_sets = []
     if File.exist? FILENAME
       practice_sets, practice_set_names = marshal
-      choose_set_to_practice(practice_sets, practice_set_names)
+      choose_set_to_practice(practice_sets, practice_set_names)  #TODO PP
       write_practice_sets practice_sets
     else
       puts "I can't find your source file. Sorry."
     end
   end
 
-  def at_exit(practice_sets = [])
+  def at_exit(practice_sets = [])  #TODO PM
     puts "Goodbye."
     write_practice_sets practice_sets
     exit
   end
 
-  def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed via new_set, add_a_set
+  def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed via new_set, add_a_set      #TODO PP
     quit = false
     chosen_set_name, quit, add_set, delete_set = ChooseSetToPracticeWidget.run_qt(practice_set_names)
     if add_set then quit = new_set(practice_sets, practice_set_names) end
@@ -151,7 +74,7 @@ end
   def get_new_routine(new_routine_name = "", new_routine_link = "") # called by get_first_routine, add_routine, self
     name, link, status, priority = AddRoutineWidget.run_qt(new_routine_name, new_routine_link)
 puts "status in get_new_routine: #{status}"
-    if status == :quit then return "quit" end
+    if status == :quit then return "quit" end    #TODO change "" to :
     if status == :back then return "back" end
     if valid_name(name) and valid_link(link)
       routine = build_routine(name, link, priority)
@@ -175,7 +98,7 @@ puts "status in get_new_routine: #{status}"
     return false
     end
 
-  def build_routine(new_routine_name, new_routine_link, priority = 1)
+  def build_routine(new_routine_name, new_routine_link, priority = 1)   #TODO PM
     routine = Routine.new({
       :name => new_routine_name,
       :link => new_routine_link,
@@ -188,7 +111,7 @@ puts "status in get_new_routine: #{status}"
       :score => 0 })
   end
 
-  def build_set(new_set_name, new_routines, practice_sets, practice_set_names) #called by get_first_routine
+  def build_set(new_set_name, new_routines, practice_sets, practice_set_names) #called by get_first_routine  #TODO PM
     new_set = PracticeSet.new(new_set_name, 0, new_routines)
     practice_sets.push(new_set)
     practice_set_names.push(new_set_name)
@@ -240,7 +163,7 @@ puts "status in get_new_routine: #{status}"
     index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets)
   end
 
-  def index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets)
+  def index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets)     #TODO PM
     if routines_in_process.length < initial_set_size then chosen_set.session_count +=1 end
     at_exit(practice_sets)
   end
@@ -272,7 +195,7 @@ puts "status in get_new_routine: #{status}"
     if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
   end
 
-  def add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size) #called by practice_routines
+  def add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size) #called by practice_routines   #TODO PM
     new_routine = get_new_routine
     if new_routine == "back" then practice_routines(chosen_set, practice_sets, practice_set_names) end
     if new_routine == "quit" then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
@@ -287,7 +210,7 @@ puts "status in get_new_routine: #{status}"
     end
   end
 
-  def re_create_routines_in_process(chosen_set, routines_in_process, new_routine) #called by add_routine
+  def re_create_routines_in_process(chosen_set, routines_in_process, new_routine) #called by add_routine     #TODO PM
     new_routines_in_process = chosen_set.routines.clone
     old_routines_in_process_names = []
     routines_in_process.each do |routine|
@@ -300,7 +223,7 @@ puts "status in get_new_routine: #{status}"
     return new_routines_in_process
   end
 
-  def get_new_chosen_set(practice_sets, chosen_set)
+  def get_new_chosen_set(practice_sets, chosen_set)     #TODO PM
     new_chosen_set = ""
     practice_sets.each do |set|
       new_chosen_set = set if set.name == chosen_set.name
@@ -317,7 +240,7 @@ puts "status in get_new_routine: #{status}"
     delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)
   end
 
-  def delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)   # called by delete_routine
+  def delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)   # called by delete_routine  #TODO PM
     routines_to_delete.each do |routine_to_delete|
 
     chosen_set.routines.each do |routine|
@@ -355,7 +278,7 @@ puts "performance_rating in practice_routine = #{performance_rating}"
     end
   end
 
-  def practice_success?(routine, response) #called by practice_routines
+  def practice_success?(routine, response) #called by practice_routines  #TODO PM
     response == 5 or (response == 4 and routine.priority < 4)
   end
 
