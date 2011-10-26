@@ -35,10 +35,6 @@
 ####Todo track camera usage?
 
 ################TODO*****IN PROCESS*****TODO#################
-#TODO Keith's Suggestions:
-#TODO create system module/class that will identify the system it is running on and include all system dependent differences
-#TODO develop only on mac
-#TODO if windows then .... else ....
 #TODO test addroutine
 #TODO make sure exits save properly
 #TODO can widget buttons change color or something when clicked?   Also, activate input boxes when button clicked (add routine, add set)
@@ -49,13 +45,6 @@
 #	consider getting rapid gui development with qt ruby by pragmatic press
 #	may be available fromdemonoid
 #	test driven development
-#
-#check out	popen4 fork for windows?
-#look on	stackoverflow
-#	for 'spawn process windows ruby
-#	get pract fully running on osx, then take commands and wrap in unix class
-#	do same with windows
-#	do sniff to know which and (string match) - use appropriate object
 #
 
 #add note: git test
@@ -76,9 +65,9 @@ require_relative 'objects'
 require_relative 'objectmanager'
 #require_relative 'testWidget'
 
-def is_numeric?(string)  #is this used?
-  true if Float(string) rescue false
-end
+#def is_numeric?(string)  #is this used?
+#  true if Float(string) rescue false
+#end
 
 class Trainer
 
@@ -94,14 +83,9 @@ if identifyOS == "mac"
   os = identifyOS
   puts "Operating System is #{os}"
 end
-    practice_sets = []
-    if File.exist? FILENAME
-      practice_sets, practice_set_names = marshal
-      choose_set_to_practice(practice_sets, practice_set_names)
+    practice_sets, practice_set_names = get_practice_sets
+    choose_set_to_practice(practice_sets, practice_set_names)
       write_practice_sets practice_sets
-    else
-      puts "I can't find your source file. Sorry."
-    end
   end
 
   def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed via new_set, add_a_set

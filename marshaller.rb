@@ -33,6 +33,10 @@ module Marshaller
     raw_data_array = raw_data_array.map { |b| is_numeric?(b) ? b.to_f : b.chomp }
   end
 
+  def is_numeric?(string)  #is this used?
+    true if Float(string) rescue false
+  end
+
   def calculate_set_length(array) #called by marshal
     num_routines = array[2*SETDATALENGTH - 1] #last item in set data with headers, indexed at 0
     set_length = 2*SETDATALENGTH + (1+num_routines)*ROUTINELENGTH #set data with headers, routine headers, routines

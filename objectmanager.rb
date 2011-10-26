@@ -1,6 +1,6 @@
-def is_numeric?(string)     #TODO is this still used?
-  true if Float(string) rescue false
-end
+#def is_numeric?(string)     #TODO is this still used?
+#  true if Float(string) rescue false
+#end
 
 module ObjectManager
 
@@ -8,17 +8,13 @@ module ObjectManager
 #  include Os
 ####  include widgets
 
-  def main #called at startup  #TODO   PM
+  def get_practice_sets #called at startup  #TODO   PM
 #  test = TestWidget.run_qt("word")
 #  puts "test = #{test}"
-if identifyOS == "mac"
-  os = identifyOS
-  puts "Operating System is #{os}"
-end
     practice_sets = []
     if File.exist? FILENAME
       practice_sets, practice_set_names = marshal
-      choose_set_to_practice(practice_sets, practice_set_names)  #TODO PP
+      return practice_sets, practice_set_names
       write_practice_sets practice_sets
     else
       puts "I can't find your source file. Sorry."
