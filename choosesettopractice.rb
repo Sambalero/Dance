@@ -3,17 +3,9 @@ require 'Qt4'
 class ChooseSetToPracticeWidget < Qt::Widget
 #called by trainer.practice_routines
 
-    attr_accessor :chosen_set, :practice_set_names, :quit, :add_set, :delete_set
-  def self.quit
-    @@quit
-  end
-
-  def self.add_set
-    @@add_set
-  end
-
-  def self.delete_set
-    @@delete_set
+    attr_accessor :chosen_set, :option, :practice_set_names # attr. acc req for this last. why?
+  def self.option
+    @@option
   end
 
   def chosen_set
@@ -39,9 +31,7 @@ class ChooseSetToPracticeWidget < Qt::Widget
 
   def init_ui()
 
-    @@quit = false
-    @@add_set = false
-    @@delete_set = false
+    @@option = :practice
     @@chosen_set = nil
 
     grid = Qt::GridLayout.new()
@@ -56,11 +46,11 @@ class ChooseSetToPracticeWidget < Qt::Widget
     quit_button = Qt::PushButton.new 'Exit Program'
     add_set_button = Qt::PushButton.new 'Add New Set'
     delete_set_button = Qt::PushButton.new 'Delete Set'
-    connect(quit_button, SIGNAL('clicked()')) {@@quit = true
+    connect(quit_button, SIGNAL('clicked()')) {@@option = :quit
       $qApp.quit}
-    connect(add_set_button, SIGNAL('clicked()')) {@@add_set = true
+    connect(add_set_button, SIGNAL('clicked()')) {@@option = :add_set
       $qApp.quit}
-    connect(delete_set_button, SIGNAL('clicked()')) {@@delete_set = true
+    connect(delete_set_button, SIGNAL('clicked()')) {@@option = :delete_set
       $qApp.quit}
       grid.addWidget(quit_button, i, 0)
       grid.addWidget(add_set_button, i+1, 0)
@@ -81,7 +71,7 @@ class ChooseSetToPracticeWidget < Qt::Widget
     choose_set.practice_set_names = practice_set_names
     choose_set.init_ui
     app.exec
-    return choose_set.chosen_set, quit, add_set, delete_set
+    return choose_set.chosen_set, option #chosen set is class variable. choose_set. required?
   end
 end
 

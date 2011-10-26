@@ -79,21 +79,21 @@ class Trainer
   def main #called at startup
 #  test = TestWidget.run_qt("word")
 #  puts "test = #{test}"
-if identifyOS == "mac"
-  os = identifyOS
-  puts "Operating System is #{os}"
-end
+#if identifyOS == "mac"
+#  os = identifyOS
+#  puts "Operating System is #{os}"
+#end
     practice_sets, practice_set_names = get_practice_sets
     choose_set_to_practice(practice_sets, practice_set_names)
-      write_practice_sets practice_sets     #TODO PM delete?
+#      write_practice_sets practice_sets     #TODO PM delete?
   end
 
   def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed via new_set, add_a_set
     quit = false
-    chosen_set_name, quit, add_set, delete_set = ChooseSetToPracticeWidget.run_qt(practice_set_names)
-    if add_set then quit = new_set(practice_sets, practice_set_names) end
-    if delete_set then quit = delete_a_set(practice_sets, practice_set_names) end
-    if quit then at_exit(practice_sets) end
+    chosen_set_name, option = ChooseSetToPracticeWidget.run_qt(practice_set_names)
+    if option == :add_set then quit = new_set(practice_sets, practice_set_names) end
+    if option == :delete_set then quit = delete_a_set(practice_sets, practice_set_names) end
+    if option == :quit then at_exit(practice_sets) end
     practice_chosen_set(practice_sets, practice_set_names, chosen_set_name)
   end
 
