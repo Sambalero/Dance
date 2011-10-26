@@ -85,7 +85,7 @@ if identifyOS == "mac"
 end
     practice_sets, practice_set_names = get_practice_sets
     choose_set_to_practice(practice_sets, practice_set_names)
-      write_practice_sets practice_sets
+      write_practice_sets practice_sets     #TODO PM delete?
   end
 
   def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed via new_set, add_a_set
@@ -109,7 +109,7 @@ end
   end
 
   def valid_name(name) #called by new_set, get_new_routine
-    if (name != nil and !name.empty?) then return true end
+    if (name != nil and !name.empty?) then return true end     #TODO PM
     MessageBoxWidget.run_qt("Please enter a name.")
     return false
   end
@@ -120,7 +120,7 @@ end
     new_routine = get_new_routine
     if new_routine == "back" then choose_set_to_practice(practice_sets, practice_set_names) end
     if new_routine == "quit" then return true end
-    if new_routine.class == Routine
+    if new_routine.class == Routine                  #TODO cleanup
       new_routines = []
       new_routines.push(new_routine)
       build_set(new_set_name, new_routines, practice_sets, practice_set_names)
@@ -131,7 +131,7 @@ end
   def get_new_routine(new_routine_name = "", new_routine_link = "") # called by get_first_routine, add_routine, self
     name, link, status, priority = AddRoutineWidget.run_qt(new_routine_name, new_routine_link)
 puts "status in get_new_routine: #{status}"
-    if status == :quit then return "quit" end
+    if status == :quit then return "quit" end             #TODO cleanup, change "" to :
     if status == :back then return "back" end
     if valid_name(name) and valid_link(link)
       routine = build_routine(name, link, priority)
@@ -150,30 +150,30 @@ puts "status in get_new_routine: #{status}"
   end
 
   def valid_link(link) #called by get_new_routine
-    if (link != nil and !link.empty?) then return true end
+    if (link != nil and !link.empty?) then return true end        #TODO PM
     MessageBoxWidget.run_qt("Please enter something in the link field.")
     return false
   end
 
-  def delete_a_set(practice_sets, practice_set_names)
+  def delete_a_set(practice_sets, practice_set_names)  #called by choose_set_to_practice
     set_to_delete, quit, back = SetToDeleteWidget.run_qt(practice_set_names)
     if quit then return quit end
     if (set_to_delete == nil or back) then choose_set_to_practice(practice_sets, practice_set_names) end
-    practice_sets.each do |set|
+    practice_sets.each do |set|                            #TODO PM
       practice_sets.delete(set) if set.name == set_to_delete
     end
     practice_set_names.delete(set_to_delete)
     choose_set_to_practice(practice_sets, practice_set_names)
   end
 
-  def practice_chosen_set(practice_sets, practice_set_names, chosen_set_name)
+  def practice_chosen_set(practice_sets, practice_set_names, chosen_set_name)  #called by choose_set_to_practice      #TODO PM
     chosen_set_index = practice_set_names.index(chosen_set_name)
     chosen_set = practice_sets[chosen_set_index]
     chosen_set.sort_routines_by_score
     set_up_practice_routines(chosen_set, practice_sets, practice_set_names)
   end
 
-  def set_up_practice_routines(chosen_set, practice_sets, practice_set_names)  # called by practice_chosen_set
+  def set_up_practice_routines(chosen_set, practice_sets, practice_set_names)  # called by practice_chosen_set    #TODO PM rcombine with caller?
     initial_set_size = chosen_set.routines.length
     routines_in_process = chosen_set.routines.clone
     practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
@@ -200,13 +200,13 @@ puts "status in get_new_routine: #{status}"
 
   def edit_routine(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) #called by practice_routine
     routine = RoutineToEditWidget.run_qt(chosen_set.routines)
-    routine_index = chosen_set.routines.index(routine)
+    routine_index = chosen_set.routines.index(routine)         #TODO PM
     rip_routine_index = routines_in_process.index(routine)
     name, link, priority, practice_count, success_count, last_success_value, status = EditRoutineWidget.run_qt(routine)
   #TODO test that each new name is unique
   #TODO update values in widget
   #TODO increment success count with last success value change
-    if status == :done
+    if status == :done                                             #TODO PM
       routine.name = name
       routine.link = link
       routine.priority = priority
@@ -217,7 +217,7 @@ puts "status in get_new_routine: #{status}"
       end
       chosen_set.routines[routine_index] = routine
       if rip_routine_index != nil
-        routines_in_process[rip_routine_index] = routine
+        routines_in_process[rip_routine_index] = routine     #TODO PM
       end
       practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
     end
@@ -225,7 +225,7 @@ puts "status in get_new_routine: #{status}"
     if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
   end
 
-  def delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names)
+  def delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names) #called by practice_routines
     routines_to_delete, status = DeleteRoutineWidget.run_qt(chosen_set.routines)
     if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
     if status == :back then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
@@ -248,7 +248,7 @@ puts "performance_rating in practice_routine = #{performance_rating}"
       initial_set_size -= 1
       routines_in_process.delete(chosen_routine)
     else #status == next TODO: change next button to OK button
-      if practice_success?(chosen_routine, performance_rating)
+      if practice_success?(chosen_routine, performance_rating)       #TODO PM
         chosen_routine.index_success_counts
       else
         chosen_routine.last_success_value = 0.1
