@@ -55,6 +55,12 @@ module ObjectManager
     return false
   end
 
+  def valid_link(link) #called by trainer.get_new_routine
+    if (link != nil and !link.empty?) then return true end
+    MessageBoxWidget.run_qt("Please enter something in the link field.")
+    return false
+  end
+
   def index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) #called by add_routine, triner.practice_routines, trainer.edit_routine, trainer.delete_routine, trainer.practice_routine
     if routines_in_process.length < initial_set_size then chosen_set.session_count +=1 end
     at_exit(practice_sets)
