@@ -61,10 +61,10 @@ module ObjectManager
   end
 
   def add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size) #called by trainer.practice_routines
-    new_routine = get_new_routine
-    if new_routine == "back" then practice_routines(chosen_set, practice_sets, practice_set_names) end
-    if new_routine == "quit" then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
-    if new_routine.class == Routine
+    status, new_routine = get_new_routine
+    if status == :back then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
+    if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
+    if status == :done
       chosen_set.routines.push(new_routine)
       write_practice_sets practice_sets
       practice_sets, practice_set_names = marshal
