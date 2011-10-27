@@ -62,6 +62,7 @@ class ChooseSetToPracticeWidget < Qt::Widget
     @practice_set_button = Qt::PushButton.new name, self
     @practice_set_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     connect(@practice_set_button, SIGNAL('clicked()')) {@@chosen_set = name
+      @@option = :practice
       $qApp.quit}
   end
 

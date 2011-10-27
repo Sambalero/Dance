@@ -49,6 +49,12 @@ module ObjectManager
     choose_set_to_practice(practice_sets, practice_set_names)
   end
 
+  def valid_name(name) #called by trainer.new_set, trainer.get_new_routine
+    if (name != nil and !name.empty?) then return true end
+    MessageBoxWidget.run_qt("Please enter a name.")
+    return false
+  end
+
   def index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) #called by add_routine, triner.practice_routines, trainer.edit_routine, trainer.delete_routine, trainer.practice_routine
     if routines_in_process.length < initial_set_size then chosen_set.session_count +=1 end
     at_exit(practice_sets)

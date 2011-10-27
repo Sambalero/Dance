@@ -5,7 +5,7 @@ class AddRoutineWidget < Qt::Widget
 
     slots 'on_changed(QString)', 'theTextChanged()'
 
-    attr_accessor :back, :quit, :priority, :nombre, :link
+    attr_accessor :status, :priority, :nombre, :link
 
     def self.nombre
       @@name
@@ -17,14 +17,6 @@ class AddRoutineWidget < Qt::Widget
 
     def self.status
       @@status
-    end
-
-    def self.quit
-      @@quit
-    end
-
-    def self.back
-      @@back
     end
 
     def self.priority
@@ -54,8 +46,6 @@ class AddRoutineWidget < Qt::Widget
 
   def init_ui
     @@status = ""
-    @@back = false
-    @@quit = false
     @@priority = 1
 
     @name_label = Qt::Label.new self    #self here puts the widget in the window
@@ -100,27 +90,27 @@ class AddRoutineWidget < Qt::Widget
     connect(@slider, SIGNAL('valueChanged(int)'), @lcd, SLOT('display(int)'))
     connect(@slider, SIGNAL('valueChanged(int)')) {@@priority = @slider.value}
 
-        @priority_label = Qt::Label.new self
-        @priority_label.setText "Set Priority With Slider"
-        @priority_label.adjustSize
+    @priority_label = Qt::Label.new self
+    @priority_label.setText "Set Priority With Slider"
+    @priority_label.adjustSize
 
-            #  http://flylib.com/books/en/2.491.1.168/1/
-       @done_button = Qt::PushButton.new self
-       @done_button.setText "OK"
-       connect(@done_button, SIGNAL('clicked()')) { @@status = :done
-       $qApp.quit}
+        #  http://flylib.com/books/en/2.491.1.168/1/
+    @done_button = Qt::PushButton.new self
+    @done_button.setText "OK"
+    connect(@done_button, SIGNAL('clicked()')) { @@status = :done
+    $qApp.quit}
 
-       @back_button = Qt::PushButton.new self
-       @back_button.setText "BACK"
-       connect(@back_button, SIGNAL('clicked()')) {@@status = :back
-       $qApp.quit}
+    @back_button = Qt::PushButton.new self
+    @back_button.setText "BACK"
+    connect(@back_button, SIGNAL('clicked()')) {@@status = :back
+    $qApp.quit}
 
-       @quit_button = Qt::PushButton.new self
-       @quit_button.setText "Exit Program"
-       connect(@quit_button, SIGNAL('clicked()')) {@@status = :quit
-       $qApp.quit}
+    @quit_button = Qt::PushButton.new self
+    @quit_button.setText "Exit Program"
+    connect(@quit_button, SIGNAL('clicked()')) {@@status = :quit
+    $qApp.quit}
 
-       box = Qt::VBoxLayout.new
+    box = Qt::VBoxLayout.new
       box.addWidget(@name_label)
       box.addWidget(edit)
       box.addWidget(@link_label)
@@ -132,16 +122,16 @@ class AddRoutineWidget < Qt::Widget
       box.addWidget(@done_button)
       box.addWidget(@back_button)
       box.addWidget(@quit_button)
-      setLayout(box)
-    end
+    setLayout(box)
+  end
 
-    def on_changed text
-      @@nombre = text
-    end
+  def on_changed text
+    @@nombre = text
+  end
 
-    def theTextChanged
-      @@link = @textedit.toPlainText
-    end
+  def theTextChanged
+    @@link = @textedit.toPlainText
+  end
 
   def self.run_qt(name = "", link = "", priority = 1) #called by ...
     @@nombre = name

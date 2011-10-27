@@ -63,6 +63,7 @@ require_relative 'messagebox'
 require_relative 'os'
 require_relative 'objects'
 require_relative 'objectmanager'
+require 'ruby-debug'
 #require_relative 'testWidget'
 
 #def is_numeric?(string)  #is this used?
@@ -89,64 +90,52 @@ class Trainer
   end
 
   def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed via new_set, add_a_set
-    quit = false
     chosen_set_name, option = ChooseSetToPracticeWidget.run_qt(practice_set_names)
-    if option == :add_set then quit = new_set(practice_sets, practice_set_names) end
-    if option == :delete_set then quit = delete_a_set(practice_sets, practice_set_names) end
+    if option == :add_set then option = new_set(practice_sets, practice_set_names) end
+    if option == :delete_set then delete_a_set(practice_sets, practice_set_names) end
     if option == :quit then at_exit(practice_sets) end
-    practice_chosen_set(practice_sets, practice_set_names, chosen_set_name)
+    if option == :practice then practice_chosen_set(practice_sets, practice_set_names, chosen_set_name) end
   end
 
   def new_set(practice_sets, practice_set_names) #called by choose_set_to_practice
-    quit = false
-    text, back, quit = AddSetWidget.run_qt
-    if back then choose_set_to_practice(practice_sets, practice_set_names) end
-    if quit then at_exit(practice_sets) end
-    if !valid_name(text) then new_set(practice_sets, practice_set_names) end
-      new_set_name = text
-      quit = get_first_routine(new_set_name, practice_sets, practice_set_names)
-    return quit
-  end
-
-  def valid_name(name) #called by new_set, get_new_routine
-    if (name != nil and !name.empty?) then return true end     #TODO PM
-    MessageBoxWidget.run_qt("Please enter a name.")
-    return false
+    new_set_name, status = AddSetWidget.run_qt
+    if status == :back then choose_set_to_practice(practice_sets, practice_set_names) end
+    if status == :quit then at_exit(practice_sets) end
+    if status == :done
+      if !valid_name(new_set_name) then new_set(practice_sets, practice_set_names) end
+      status = get_first_routine(new_set_name, practice_sets, practice_set_names)   #status must = :quit or :done (i think)
+    return status
+    end
   end
 
   def get_first_routine(new_set_name, practice_sets, practice_set_names) #called by new_set
     message = "Your set needs at least one routine in it"
     MessageBoxWidget.run_qt(message)
-    new_routine = get_new_routine
-    if new_routine == "back" then choose_set_to_practice(practice_sets, practice_set_names) end
-    if new_routine == "quit" then return true end
-    if new_routine.class == Routine                  #TODO cleanup
-      new_routines = []
-      new_routines.push(new_routine)
+    status, routine = get_new_routine
+    if status == :back then choose_set_to_practice(practice_sets, practice_set_names) end
+    if status == :quit then return :quit end
+    if status == :done
+      new_routines = [routine]
       build_set(new_set_name, new_routines, practice_sets, practice_set_names)
     end
-    return false
+    return status #TODO add another routine?
   end
 
   def get_new_routine(new_routine_name = "", new_routine_link = "") # called by get_first_routine, add_routine, self
     name, link, status, priority = AddRoutineWidget.run_qt(new_routine_name, new_routine_link)
-puts "status in get_new_routine: #{status}"
-    if status == :quit then return "quit" end             #TODO cleanup, change "" to :
-    if status == :back then return "back" end
+    if status == :quit or status == :back then return status end #status == done
     if valid_name(name) and valid_link(link)
       routine = build_routine(name, link, priority)
     elsif valid_name(name)
-      routine = get_new_routine(name)
-      if routine == "back" then return "back" end
-      if routine == "quit" then return "quit" end
+      status, routine = get_new_routine(name)
+      if status == :quit or status == :back then return status end
     elsif valid_link(link)
-      routine = get_new_routine("", link)
-      if routine == "back" then return "back" end
-      if routine == "quit" then return "quit" end
+      status, routine = get_new_routine("", link)
+      if status == :quit or status == :back then return status end
     else
-      routine = get_new_routine
+      status, routine = get_new_routine
     end
-    return routine
+    return status, routine
   end
 
   def valid_link(link) #called by get_new_routine

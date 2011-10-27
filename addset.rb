@@ -5,18 +5,14 @@ class AddSetWidget < Qt::Widget
 
   slots 'on_changed(QString)'
 
-  attr_accessor :new_set_name, :back, :quit
+  attr_accessor :new_set_name, :status
 
   def self.new_set_name
     @new_set_name
   end
 
-  def self.quit
-    @@quit
-  end
-
-  def self.back
-    @@back
+  def self.status
+    @@status
   end
 
   def initialize
@@ -34,8 +30,7 @@ class AddSetWidget < Qt::Widget
 
   def init_ui
 
-    @@back = false
-    @@quit = false
+    @@status = ""
 
     @label = Qt::Label.new self    #self here puts the widget in the window
     @label.setText "Enter New Set Name"
@@ -47,16 +42,17 @@ class AddSetWidget < Qt::Widget
 
     @done_button = Qt::PushButton.new self
     @done_button.setText "OK"
-    connect(@done_button, SIGNAL('clicked()')) { $qApp.quit}
+    connect(@done_button, SIGNAL('clicked()')) { @@status = :done
+      $qApp.quit}
 
     @back_button = Qt::PushButton.new self
     @back_button.setText "BACK"
-    connect(@back_button, SIGNAL('clicked()')) {@@back = true
+    connect(@back_button, SIGNAL('clicked()')) {@@status = :back
       $qApp.quit}
 
     @quit_button = Qt::PushButton.new self
     @quit_button.setText "Exit Program"
-    connect(@quit_button, SIGNAL('clicked()')) {@@quit = true
+    connect(@quit_button, SIGNAL('clicked()')) {@@status = :quit
       $qApp.quit}
 
     edit.move 30, 60
@@ -81,7 +77,7 @@ class AddSetWidget < Qt::Widget
     app = Qt::Application.new ARGV
     add_set = AddSetWidget.new
     app.exec
-    return add_set.new_set_name, back, quit
+    return add_set.new_set_name, status
   end
 end
 
