@@ -126,6 +126,18 @@ module ObjectManager
     practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
   end
 
+  def is_duplicate(name, chosen_set)  #called by trainer.edit_routine
+    found = false
+    chosen_set.routines.each do |routine|
+      if routine.name == name
+        found = true
+        message = "Your routine must have a unique name"
+        MessageBoxWidget.run_qt(message)
+      end
+    end
+    return found
+  end
+
   def rebuild_routine(routine, name, link, priority, practice_count, success_count, last_success_value)
     routine.name = name
     routine.link = link

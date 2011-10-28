@@ -168,8 +168,9 @@ class Trainer
     index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets)
   end
 
-  def edit_routine(routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) #called by practice_routines
+  def edit_routine(routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) #called by practice_routines, self
     name, link, priority, practice_count, success_count, last_success_value, status = EditRoutineWidget.run_qt(routine)
+    if is_duplicate(name, chosen_set) then edit_routine(routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
   #TODO test that each new name is unique
   #TODO update values in widget
   #TODO increment success count with last success value change
