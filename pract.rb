@@ -146,24 +146,14 @@ class Trainer
     choose_set_to_practice(practice_sets, practice_set_names)
   end
 
-  def practice_chosen_set(practice_sets, practice_set_names, chosen_set_name)  #called by choose_set_to_practice      #TODO PM
-    chosen_set_index = practice_set_names.index(chosen_set_name)
-    chosen_set = practice_sets[chosen_set_index]
-    chosen_set.sort_routines_by_score
-    set_up_practice_routines(chosen_set, practice_sets, practice_set_names)
-  end
-
-  def set_up_practice_routines(chosen_set, practice_sets, practice_set_names)  # called by practice_chosen_set    #TODO PM rcombine with caller?
-    initial_set_size = chosen_set.routines.length
-    routines_in_process = chosen_set.routines.clone
-    practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
-  end
-
   def practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) # called by set_up_practice_routines, self, delete_routines, edit_routine, add_routine
     while routines_in_process != []
       chosen_routine, response = ChooseRoutineToPracticeWidget.run_qt(routines_in_process)
       if response == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
-      if response == :edit_routine then edit_routine(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
+      if response == :edit_routine
+        routine = RoutineToEditWidget.run_qt(chosen_set.routines)
+        edit_routine(routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
+      end
       if response == :add_routine
         add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size)
         practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
@@ -178,31 +168,18 @@ class Trainer
     index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets)
   end
 
-  def edit_routine(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) #called by practice_routine
-    routine = RoutineToEditWidget.run_qt(chosen_set.routines)
-    routine_index = chosen_set.routines.index(routine)         #TODO PM
-    rip_routine_index = routines_in_process.index(routine)
+  def edit_routine(routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) #called by practice_routines
     name, link, priority, practice_count, success_count, last_success_value, status = EditRoutineWidget.run_qt(routine)
   #TODO test that each new name is unique
   #TODO update values in widget
   #TODO increment success count with last success value change
-    if status == :done                                             #TODO PM
-      routine.name = name
-      routine.link = link
-      routine.priority = priority
-      routine.practice_count = practice_count
-      routine.success_count = success_count
-      if last_success_value
-       routine.last_success_value = (routine.last_success_value ==  0.1 ? 1 : 0.1)
-      end
-      chosen_set.routines[routine_index] = routine
-      if rip_routine_index != nil
-        routines_in_process[rip_routine_index] = routine     #TODO PM
-      end
-      practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
-    end
     if status == :back then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
     if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
+    if status == :done
+      revised_routine = rebuild_routine(routine, name, link, priority, practice_count, success_count, last_success_value)
+      replace_routine(routine, revised_routine, chosen_set, routines_in_process)
+      practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
+    end
   end
 
   def delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names) #called by practice_routines

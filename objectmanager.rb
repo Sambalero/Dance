@@ -102,7 +102,7 @@ module ObjectManager
     return new_chosen_set
   end
 
-  def delete_sets(sets_to_delete, practice_sets, practice_set_names) #called by trainer.choose_set_to_delete
+  def delete_sets(sets_to_delete, practice_sets, practice_set_names) #called by trainer.choose_set_to_delete  TODO confirm with user before delete
     sets_to_delete.each do |set_to_delete|
       practice_sets.each do |set|
         practice_sets.delete(set) if set.name == set_to_delete
@@ -113,7 +113,41 @@ module ObjectManager
     end
   end
 
-  def delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)   # called by trainer.delete_routine
+  def practice_chosen_set(practice_sets, practice_set_names, chosen_set_name)  #called by choose_set_to_practice
+    chosen_set_index = practice_set_names.index(chosen_set_name)
+    chosen_set = practice_sets[chosen_set_index]
+    chosen_set.sort_routines_by_score
+    set_up_practice_routines(chosen_set, practice_sets, practice_set_names)
+  end
+
+  def set_up_practice_routines(chosen_set, practice_sets, practice_set_names)  # called by practice_chosen_set  #recombine with caller?
+    initial_set_size = chosen_set.routines.length
+    routines_in_process = chosen_set.routines.clone
+    practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
+  end
+
+  def rebuild_routine(routine, name, link, priority, practice_count, success_count, last_success_value)
+    routine.name = name
+    routine.link = link
+    routine.priority = priority
+    routine.practice_count = practice_count
+    routine.success_count = success_count
+    if last_success_value   #should be change_last_success_value
+     routine.last_success_value = (routine.last_success_value ==  0.1 ? 1 : 0.1)
+    end
+    return routine
+  end
+
+  def replace_routine(routine, revised_routine, chosen_set, routines_in_process)
+    routine_index = chosen_set.routines.index(routine)
+    rip_routine_index = routines_in_process.index(routine)
+    chosen_set.routines[routine_index] = revised_routine
+    if rip_routine_index != nil
+      routines_in_process[rip_routine_index] = revised_routine
+    end
+  end
+
+  def delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)   # called by trainer.delete_routine     TODO confirm with user before delete
     routines_to_delete.each do |routine_to_delete|
 
     chosen_set.routines.each do |routine|
