@@ -1,12 +1,12 @@
 require 'Qt4'
-class SetToDeleteWidget < Qt::Widget
+class SetsToDeleteWidget < Qt::Widget
  #called by trainer.suggest_set
 
  # the SetToDeleteWidget offers an ordered list of sets to choose from, including "none" and "exit program"
  # the sets array is passed to it.
  # it returns a new array of sets to delete, along with an exit flag
 
-    attr_accessor :set_to_delete, :practice_set_names, :quit, :back
+    attr_accessor :sets_to_delete, :practice_set_names, :quit, :back
     # add back
 
   def self.quit
@@ -17,8 +17,8 @@ class SetToDeleteWidget < Qt::Widget
     @@back
   end
 
-  def set_to_delete
-    @set_to_delete
+  def sets_to_delete
+    @sets_to_delete
   end
 
   def self.practice_set_names   #this probably could and should be an instance variable
@@ -42,7 +42,7 @@ class SetToDeleteWidget < Qt::Widget
 
     @@quit = false
     @@back = false
-    @set_to_delete = nil
+    @sets_to_delete = []
 
     grid = Qt::GridLayout.new()
 
@@ -78,17 +78,17 @@ class SetToDeleteWidget < Qt::Widget
   def init_button(set)
     @set_button = Qt::PushButton.new set, self
     @set_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
-    connect(@set_button, SIGNAL('clicked()')) {@set_to_delete = set}
+    connect(@set_button, SIGNAL('clicked()')) {@sets_to_delete.push(set)}
   end
 
   def self.run_qt(practice_set_names)
     done = false
     app = Qt::Application.new ARGV
-    choose_set = SetToDeleteWidget.new
+    choose_set = SetsToDeleteWidget.new
     choose_set.practice_set_names = practice_set_names
     choose_set.init_ui
     app.exec
-    return choose_set.set_to_delete, quit, back
+    return choose_set.sets_to_delete, quit, back
   end
 end
 

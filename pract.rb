@@ -92,7 +92,7 @@ class Trainer
   def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed via new_set, add_a_set
     chosen_set_name, option = ChooseSetToPracticeWidget.run_qt(practice_set_names)
     if option == :add_set then option = new_set(practice_sets, practice_set_names) end
-    if option == :delete_set then delete_a_set(practice_sets, practice_set_names) end
+    if option == :delete_set then choose_set_to_delete(practice_sets, practice_set_names) end
     if option == :quit then at_exit(practice_sets) end
     if option == :practice then practice_chosen_set(practice_sets, practice_set_names, chosen_set_name) end
   end
@@ -138,20 +138,11 @@ class Trainer
     return status, routine
   end
 
-  def valid_link(link) #called by get_new_routine
-    if (link != nil and !link.empty?) then return true end        #TODO PM
-    MessageBoxWidget.run_qt("Please enter something in the link field.")
-    return false
-  end
-
-  def delete_a_set(practice_sets, practice_set_names)  #called by choose_set_to_practice
-    set_to_delete, quit, back = SetToDeleteWidget.run_qt(practice_set_names)
+  def choose_set_to_delete(practice_sets, practice_set_names)  #called by choose_set_to_practice
+    sets_to_delete, quit, back = SetsToDeleteWidget.run_qt(practice_set_names)
     if quit then return quit end
-    if (set_to_delete == nil or back) then choose_set_to_practice(practice_sets, practice_set_names) end
-    practice_sets.each do |set|                            #TODO PM
-      practice_sets.delete(set) if set.name == set_to_delete
-    end
-    practice_set_names.delete(set_to_delete)
+    if (sets_to_delete == nil or back) then choose_set_to_practice(practice_sets, practice_set_names) end
+    delete_sets(sets_to_delete, practice_sets, practice_set_names)
     choose_set_to_practice(practice_sets, practice_set_names)
   end
 

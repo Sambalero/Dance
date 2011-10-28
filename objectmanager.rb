@@ -102,6 +102,17 @@ module ObjectManager
     return new_chosen_set
   end
 
+  def delete_sets(sets_to_delete, practice_sets, practice_set_names) #called by trainer.choose_set_to_delete
+    sets_to_delete.each do |set_to_delete|
+      practice_sets.each do |set|
+        practice_sets.delete(set) if set.name == set_to_delete
+      end
+      practice_set_names.each do |name|
+        practice_set_names.delete(name) if name == set_to_delete
+      end
+    end
+  end
+
   def delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)   # called by trainer.delete_routine
     routines_to_delete.each do |routine_to_delete|
 
