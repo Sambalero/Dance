@@ -6,15 +6,15 @@ class SetsToDeleteWidget < Qt::Widget
  # the sets array is passed to it.
  # it returns a new array of sets to delete, along with an exit flag
 
-    attr_accessor :sets_to_delete, :practice_set_names, :quit, :back
+    attr_accessor :sets_to_delete, :practice_set_names, :status
     # add back
 
   def self.quit
     @@quit
   end
 
-  def self.back
-    @@back
+  def self.status
+    @@status
   end
 
   def sets_to_delete
@@ -40,8 +40,7 @@ class SetsToDeleteWidget < Qt::Widget
 
   def init_ui()
 
-    @@quit = false
-    @@back = false
+    @@status = ""
     @sets_to_delete = []
 
     grid = Qt::GridLayout.new()
@@ -55,20 +54,21 @@ class SetsToDeleteWidget < Qt::Widget
 
     done_button = Qt::PushButton.new 'OK'
     connect(done_button, SIGNAL('clicked()')) {
-       $qApp.quit}                     #
+      @@status = :done
+      $qApp.quit}
     grid.addWidget(done_button, i, 0)
 
 
     quit_button = Qt::PushButton.new 'Exit Program'
-    connect(quit_button, SIGNAL('clicked()')) {@@quit = true
+    connect(quit_button, SIGNAL('clicked()')) {@@status = :quit
        $qApp.quit}
     grid.addWidget(quit_button, i+1, 0)
 
     back_button = Qt::PushButton.new 'BACK'
     connect(back_button, SIGNAL('clicked()')) {
-      @@back = true
-      $qApp.quit}                     #what's up with this not working?
-    grid.addWidget(back_button, i+2, 0)   #
+      @@status = :back
+      $qApp.quit}
+    grid.addWidget(back_button, i+2, 0)
 
     layout = Qt::VBoxLayout.new()
     layout.addLayout(grid)
@@ -88,7 +88,7 @@ class SetsToDeleteWidget < Qt::Widget
     choose_set.practice_set_names = practice_set_names
     choose_set.init_ui
     app.exec
-    return choose_set.sets_to_delete, quit, back
+    return choose_set.sets_to_delete, status
   end
 end
 

@@ -52,7 +52,7 @@ class DeleteRoutineWidget < Qt::Widget
       i += 1
     end
 
-    done_button = Qt::PushButton.new 'DONE'
+    done_button = Qt::PushButton.new 'OK'
     connect(done_button, SIGNAL('clicked()')) {
        @@status = :done
        $qApp.quit}

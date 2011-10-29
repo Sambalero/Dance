@@ -99,12 +99,10 @@ class EditRoutineWidget < Qt::Widget
       4: Want to review this regularly
       5: Basics"
 
-    grid = Qt::GridLayout.new()   # Here I have the layout info associated with the functional blocks; I think I like the layout grouped separately better.
 
     header = Qt::Label.new(self)
     header.setText "Enter the new value in the box."
     header.setFont(Qt::Font.new('Times', 14, Qt::Font::Bold))
-    grid.addWidget(header, 0, 0, 1, 3)
 
     @name_label = Qt::Label.new(self)
     @name_label.setText "Name: #{@@nombre}"
@@ -112,8 +110,6 @@ class EditRoutineWidget < Qt::Widget
     @edit_name.setText routine.name
     connect @edit_name, SIGNAL("textChanged(QString)"),
             self, SLOT("new_name(QString)")
-    grid.addWidget(name_label, 1, 0, 1, 3)
-    grid.addWidget(@edit_name, 2, 0, 1, 3)
 
     @link_label = Qt::Label.new(self)
     @link_label.setText "Link: #{@@link}"
@@ -121,15 +117,12 @@ class EditRoutineWidget < Qt::Widget
     @edit_link.setText routine.link
     connect @edit_link, SIGNAL("textChanged(QString)"),
             self, SLOT("new_link(QString)")
-    grid.addWidget(link_label, 3, 0, 1, 3)
-    grid.addWidget(@edit_link, 4, 0, 1, 3)
 
     @lcd = Qt::LCDNumber.new(2)
     @lcd.setSegmentStyle(Qt::LCDNumber::Filled)
     @lcd.setPalette(Qt::Palette.new(Qt::Color.new(250, 250, 200)))
     @lcd.setAutoFillBackground(true)
     @lcd.display(@@priority)
-    grid.addWidget(@lcd, 5, 2)
 
     @slider = Qt::Slider.new(Qt::Horizontal, self)
     @slider.setRange(1, 5)
@@ -138,28 +131,22 @@ class EditRoutineWidget < Qt::Widget
     connect(@slider, SIGNAL('valueChanged(int)')) {
       @@priority = @slider.value
       @message.setText "Set Priority with Slider: (Current Value: "  + @@priority.to_s + ")" + priorityText}
-    grid.addWidget(@slider, 6, 2)
 
     @message = Qt::Label.new(self)
     @message.setText "Set Priority with Slider: (Current Value: "  + @@priority.to_s + ")" + priorityText
     @message.adjustSize
-    grid.addWidget(@message, 5, 0, 3, 2)
 
     @practice_count_label = Qt::Label.new(self)
     @practice_count_label.setText "Times practiced: #{@@practice_count}"
     @edit_practice_count = Qt::LineEdit.new self
     connect @edit_practice_count, SIGNAL("textChanged(QString)"),
             self, SLOT("new_practice_count(QString)")
-    grid.addWidget(practice_count_label, 8, 0)
-    grid.addWidget(@edit_practice_count, 8, 2)
 
     @success_count_label = Qt::Label.new(self)
     @success_count_label.setText "Successes: #{@@success_count}"
     @edit_success_count = Qt::LineEdit.new self
     connect @edit_success_count, SIGNAL("textChanged(QString)"),
             self, SLOT("new_success_count(QString)")
-    grid.addWidget(success_count_label, 9, 0)
-    grid.addWidget(@edit_success_count, 9, 2)
 
     @last_success_value_label = Qt::Label.new(self)
       success = @@last_success_value == 0.1 ? "No" : "Yes"
@@ -173,20 +160,16 @@ class EditRoutineWidget < Qt::Widget
       success = @@last_success_value == 0.1 ? "No" : "Yes"
       @last_success_value_label.setText "Last practice successful? #{success}"
       @success_count_label.setText "Successes: #{@@success_count}"}
-    grid.addWidget(last_success_value_label, 10, 0)
-    grid.addWidget(last_success_button, 10, 2)
 
     back_button = Qt::PushButton.new self
     back_button.setText "BACK"
     back_button.resize 30, 20
-    grid.addWidget(back_button, 11, 0)
     connect(back_button, SIGNAL('clicked()')) { $qApp.quit
       @@status = :back }
 
     exit_button = Qt::PushButton.new self
     exit_button.setText "EXIT PROGRAM"
     exit_button.resize 30, 20
-    grid.addWidget(exit_button, 11, 1)
     connect(exit_button, SIGNAL('clicked()')) { $qApp.quit
       @@status = :quit }
 
@@ -194,10 +177,27 @@ class EditRoutineWidget < Qt::Widget
     done_button.setText "OK"
     done_button.resize 30, 20
 #    done_button.setPalette( Qt::red )
-    grid.addWidget(done_button, 11, 2)
     connect(done_button, SIGNAL('clicked()')) { $qApp.quit
       @@status = :done }
 
+    grid = Qt::GridLayout.new()   # Here I have the layout info associated with the functional blocks; I think I like the layout grouped separately better.
+    grid.addWidget(header, 0, 0, 1, 3)
+    grid.addWidget(name_label, 1, 0, 1, 3)
+    grid.addWidget(@edit_name, 2, 0, 1, 3)
+    grid.addWidget(link_label, 3, 0, 1, 3)
+    grid.addWidget(@edit_link, 4, 0, 1, 3)
+    grid.addWidget(@lcd, 5, 2)
+    grid.addWidget(@slider, 6, 2)
+    grid.addWidget(@message, 5, 0, 3, 2)
+    grid.addWidget(practice_count_label, 8, 0)
+    grid.addWidget(@edit_practice_count, 8, 2)
+    grid.addWidget(success_count_label, 9, 0)
+    grid.addWidget(@edit_success_count, 9, 2)
+    grid.addWidget(last_success_value_label, 10, 0)
+    grid.addWidget(last_success_button, 10, 2)
+    grid.addWidget(back_button, 11, 0)
+    grid.addWidget(exit_button, 11, 1)
+    grid.addWidget(done_button, 11, 2)
     setLayout(grid)
 
   end

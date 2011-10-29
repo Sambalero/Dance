@@ -63,6 +63,7 @@ require_relative 'messagebox'
 require_relative 'os'
 require_relative 'objects'
 require_relative 'objectmanager'
+require_relative 'confirmdelete'
 require 'ruby-debug'
 #require_relative 'testWidget'
 
@@ -139,9 +140,11 @@ class Trainer
   end
 
   def choose_set_to_delete(practice_sets, practice_set_names)  #called by choose_set_to_practice
-    sets_to_delete, quit, back = SetsToDeleteWidget.run_qt(practice_set_names)
-    if quit then return quit end
-    if (sets_to_delete == nil or back) then choose_set_to_practice(practice_sets, practice_set_names) end
+    sets_to_delete, status = SetsToDeleteWidget.run_qt(practice_set_names)
+    if status == :quit then at_exit(practice_sets) end
+    if (sets_to_delete == nil or status == :back) then choose_set_to_practice(practice_sets, practice_set_names) end
+    confirmed = ConfirmDeleteWidget.run_qt(sets_to_delete)
+    if confirmed == :not then choose_set_to_practice(practice_sets, practice_set_names) end
     delete_sets(sets_to_delete, practice_sets, practice_set_names)
     choose_set_to_practice(practice_sets, practice_set_names)
   end
@@ -170,13 +173,10 @@ class Trainer
 
   def edit_routine(routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) #called by practice_routines, self
     name, link, priority, practice_count, success_count, last_success_value, status = EditRoutineWidget.run_qt(routine)
-  #TODO update values in widget
-  #TODO increment success count with last success value change
     if status == :back then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
     if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
     if status == :done
       revised_routine = rebuild_routine(routine, name, link, priority, practice_count, success_count, last_success_value)
-
       replace_routine(routine, revised_routine, chosen_set, routines_in_process)
       practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
     end
@@ -187,15 +187,14 @@ class Trainer
     if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
     if status == :back then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
     if routines_to_delete == (nil or []) then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
-    #TODO list routines to delete for user and confirm
+    confirmed = ConfirmDeleteWidget.run_qt(routines_to_delete)
+    if confirmed == :not then delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names) end
     delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)
   end
 
   def practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets)  #called by practice_routines
   #TODO when out of routines, "that's all the routines. do you want to practice another set?"
     performance_rating, status = HowDidYouDoWidget.run_qt(chosen_routine) #TODO if == 5, change priority?   if quit?
-puts "status in practice_routine = #{status}"
-puts "performance_rating in practice_routine = #{performance_rating}"
     if status == :show
       launch_routine_file(chosen_routine)
       practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets)
