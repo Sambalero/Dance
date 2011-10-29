@@ -126,32 +126,21 @@ module ObjectManager
     practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
   end
 
-  def is_duplicate(name, chosen_set)  #called by trainer.edit_routine
-    found = false
-    chosen_set.routines.each do |routine|
-      if routine.name == name
-        found = true
-        message = "Your routine must have a unique name"
-        MessageBoxWidget.run_qt(message)
-      end
-    end
-    return found
-  end
-
   def rebuild_routine(routine, name, link, priority, practice_count, success_count, last_success_value)
-    routine.name = name
-    routine.link = link
-    routine.priority = priority
-    routine.practice_count = practice_count
-    routine.success_count = success_count
+    revised_routine = build_routine(name, link, priority)
+    revised_routine.practice_count = practice_count
+    revised_routine.success_count = success_count
     if last_success_value   #should be change_last_success_value
-     routine.last_success_value = (routine.last_success_value ==  0.1 ? 1 : 0.1)
+     revised_routine.last_success_value = (routine.last_success_value ==  0.1 ? 1 : 0.1)
     end
-    return routine
+    revised_routine.last_routines_practice_count = routine.last_routines_practice_count
+    revised_routine.last_date_practiced = routine.last_date_practiced
+    revised_routine.score = routine.score
+    return revised_routine
   end
 
   def replace_routine(routine, revised_routine, chosen_set, routines_in_process)
-    routine_index = chosen_set.routines.index(routine)
+    routine_index = chosen_set.routines.index(routine)   #?
     rip_routine_index = routines_in_process.index(routine)
     chosen_set.routines[routine_index] = revised_routine
     if rip_routine_index != nil

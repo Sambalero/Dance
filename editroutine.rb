@@ -51,6 +51,26 @@ class EditRoutineWidget < Qt::Widget
     @lcd
   end
 
+  def name_label
+    @name_label
+  end
+
+  def link_label
+    @link_label
+  end
+
+  def practice_count_label
+    @practice_count_label
+  end
+
+  def last_success_value_label
+    @last_success_value_label
+  end
+
+  def success_count_label
+    @success_count_label
+  end
+
   def initialize()
       super()
 
@@ -81,20 +101,13 @@ class EditRoutineWidget < Qt::Widget
 
     grid = Qt::GridLayout.new()   # Here I have the layout info associated with the functional blocks; I think I like the layout grouped separately better.
 
-
-
-#    info_button.setText "Info"     Save this: it's great!
-#    info_button.resize 30, 20
-#    grid.addWidget(info_button, 3, 1)
-#    connect(info_button, SIGNAL('clicked()')) {launch_priority_info}
-#######################################
     header = Qt::Label.new(self)
     header.setText "Enter the new value in the box."
     header.setFont(Qt::Font.new('Times', 14, Qt::Font::Bold))
     grid.addWidget(header, 0, 0, 1, 3)
 
-    name_label = Qt::Label.new(self)
-    name_label.setText "Name: #{routine.name}"
+    @name_label = Qt::Label.new(self)
+    @name_label.setText "Name: #{@@nombre}"
     @edit_name = Qt::LineEdit.new self
     @edit_name.setText routine.name
     connect @edit_name, SIGNAL("textChanged(QString)"),
@@ -102,8 +115,8 @@ class EditRoutineWidget < Qt::Widget
     grid.addWidget(name_label, 1, 0, 1, 3)
     grid.addWidget(@edit_name, 2, 0, 1, 3)
 
-    link_label = Qt::Label.new(self)
-    link_label.setText "Link: #{routine.link}"
+    @link_label = Qt::Label.new(self)
+    @link_label.setText "Link: #{@@link}"
     @edit_link = Qt::LineEdit.new self
     @edit_link.setText routine.link
     connect @edit_link, SIGNAL("textChanged(QString)"),
@@ -122,40 +135,44 @@ class EditRoutineWidget < Qt::Widget
     @slider.setRange(1, 5)
     @slider.setValue(@@priority)
     connect(@slider, SIGNAL('valueChanged(int)'), @lcd, SLOT('display(int)'))
-    connect(@slider, SIGNAL('valueChanged(int)')) {@@priority = @slider.value}
+    connect(@slider, SIGNAL('valueChanged(int)')) {
+      @@priority = @slider.value
+      @message.setText "Set Priority with Slider: (Current Value: "  + @@priority.to_s + ")" + priorityText}
     grid.addWidget(@slider, 6, 2)
 
     @message = Qt::Label.new(self)
-    @message.setText "Set Priority with Slider: (Curent Value: "  + @@priority.to_s + ")" + priorityText
+    @message.setText "Set Priority with Slider: (Current Value: "  + @@priority.to_s + ")" + priorityText
     @message.adjustSize
     grid.addWidget(@message, 5, 0, 3, 2)
 
-    practice_count_label = Qt::Label.new(self)
-    practice_count_label.setText "Times practiced: #{routine.practice_count}"
+    @practice_count_label = Qt::Label.new(self)
+    @practice_count_label.setText "Times practiced: #{@@practice_count}"
     @edit_practice_count = Qt::LineEdit.new self
     connect @edit_practice_count, SIGNAL("textChanged(QString)"),
             self, SLOT("new_practice_count(QString)")
     grid.addWidget(practice_count_label, 8, 0)
     grid.addWidget(@edit_practice_count, 8, 2)
 
-    success_count_label = Qt::Label.new(self)
-    success_count_label.setText "Successes: #{routine.success_count}"
+    @success_count_label = Qt::Label.new(self)
+    @success_count_label.setText "Successes: #{@@success_count}"
     @edit_success_count = Qt::LineEdit.new self
     connect @edit_success_count, SIGNAL("textChanged(QString)"),
             self, SLOT("new_success_count(QString)")
     grid.addWidget(success_count_label, 9, 0)
     grid.addWidget(@edit_success_count, 9, 2)
 
-    last_success_value_label = Qt::Label.new(self)
+    @last_success_value_label = Qt::Label.new(self)
       success = @@last_success_value == 0.1 ? "No" : "Yes"
-    last_success_value_label.setText "Last practice successful? #{success}"
+    @last_success_value_label.setText "Last practice successful? #{success}"
     last_success_button = Qt::PushButton.new self
     last_success_button.setText "CHANGE"
     last_success_button.resize 30, 20
     connect(last_success_button, SIGNAL('clicked()')) {
-      @@last_success_value = true
-      success = @@last_success_value == "Yes" ? "No" : "Yes"
-      last_success_value_label.setText "Last practice successful? #{success}"}
+      @@success_count = @@last_success_value == 0.1 ? @@success_count + 1 : @@success_count
+      @@last_success_value = @@last_success_value == 0.1 ? 1 : 0.1
+      success = @@last_success_value == 0.1 ? "No" : "Yes"
+      @last_success_value_label.setText "Last practice successful? #{success}"
+      @success_count_label.setText "Successes: #{@@success_count}"}
     grid.addWidget(last_success_value_label, 10, 0)
     grid.addWidget(last_success_button, 10, 2)
 
@@ -191,6 +208,7 @@ class EditRoutineWidget < Qt::Widget
       nombre = text.strip
       if not nombre.empty?
         @@nombre = @edit_name.text
+        @name_label.setText "Name: #{@@nombre}"
       end
     end
   end
@@ -200,6 +218,7 @@ class EditRoutineWidget < Qt::Widget
       link = text.strip
       if not link.empty?
         @@link = @edit_link.text
+        @link_label.setText "Link: #{@@link}"
       end
     end
   end
@@ -209,6 +228,7 @@ class EditRoutineWidget < Qt::Widget
       practice_count = text.strip
       if (not practice_count.empty?) and is_numeric?(practice_count)
         @@practice_count = @edit_practice_count.text.to_f
+        @practice_count_label.setText "Times practiced: #{@@practice_count}"
       end
     end
   end
@@ -218,6 +238,7 @@ class EditRoutineWidget < Qt::Widget
       success_count = text.strip
       if (not success_count.empty?) and  is_numeric?(success_count)
         @@success_count = @edit_success_count.text.to_f
+        @success_count_label.setText "Successes: #{@@success_count}"
       end
     end
   end

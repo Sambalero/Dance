@@ -66,9 +66,9 @@ require_relative 'objectmanager'
 require 'ruby-debug'
 #require_relative 'testWidget'
 
-#def is_numeric?(string)  #is this used?
-#  true if Float(string) rescue false
-#end
+def is_numeric?(string)
+  true if Float(string) rescue false
+end
 
 class Trainer
 
@@ -170,14 +170,13 @@ class Trainer
 
   def edit_routine(routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) #called by practice_routines, self
     name, link, priority, practice_count, success_count, last_success_value, status = EditRoutineWidget.run_qt(routine)
-    if is_duplicate(name, chosen_set) then edit_routine(routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
-  #TODO test that each new name is unique
   #TODO update values in widget
   #TODO increment success count with last success value change
     if status == :back then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
     if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
     if status == :done
       revised_routine = rebuild_routine(routine, name, link, priority, practice_count, success_count, last_success_value)
+
       replace_routine(routine, revised_routine, chosen_set, routines_in_process)
       practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
     end
