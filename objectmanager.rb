@@ -148,7 +148,7 @@ module ObjectManager
     end
   end
 
-  def delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)   # called by trainer.delete_routine     TODO confirm with user before delete
+  def delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)   # called by trainer.delete_routine
     routines_to_delete.each do |routine_to_delete|
 
     chosen_set.routines.each do |routine|
@@ -162,8 +162,12 @@ module ObjectManager
     end
   end
 
-  def practice_success?(routine, response) #called by trainer.practice_routines
-    response == 5 or (response == 4 and routine.priority < 4)
+  def practice_success?(chosen_routine, performance_rating) #called by trainer.practice_routines
+      if performance_rating == 5 or (performance_rating == 4 and chosen_routine.priority < 4)
+        chosen_routine.index_success_counts
+      else
+        chosen_routine.last_success_value = 0.1
+      end
   end
 
 end

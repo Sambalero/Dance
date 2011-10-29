@@ -65,7 +65,7 @@ class HowDidYouDoWidget < Qt::Widget
     @slider.setRange(1, 5)
     @slider.setValue(1)
 #buttons
-    @next_routine_button = Qt::PushButton.new "NEXT"
+    @next_routine_button = Qt::PushButton.new "OK"
     @next_routine_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     @launch_file_button = Qt::PushButton.new "SHOW ME"
     @launch_file_button.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))

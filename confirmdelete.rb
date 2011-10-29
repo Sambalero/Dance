@@ -2,7 +2,7 @@ require 'Qt4'
 class ConfirmDeleteWidget < Qt::Widget
 
 attr_accessor :deletees, :confirmed
- #the MessageBoxWidget presents a message to the user
+ #this widget provides the user a chance to review and bail before delete
   def self.deletees
     @@deletees
   end

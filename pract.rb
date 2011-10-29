@@ -64,7 +64,8 @@ require_relative 'os'
 require_relative 'objects'
 require_relative 'objectmanager'
 require_relative 'confirmdelete'
-require 'ruby-debug'
+require_relative 'buttonbox'
+#require 'ruby-debug'
 #require_relative 'testWidget'
 
 def is_numeric?(string)
@@ -89,23 +90,22 @@ class Trainer
     choose_set_to_practice(practice_sets, practice_set_names)
 #      write_practice_sets practice_sets     #TODO PM delete?
   end
-
+                                              #TODO adjust widget screen locations
   def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed via new_set, add_a_set
     chosen_set_name, option = ChooseSetToPracticeWidget.run_qt(practice_set_names)
-    if option == :add_set then option = new_set(practice_sets, practice_set_names) end
+    if option == :add_set then get_new_set(practice_sets, practice_set_names) end
     if option == :delete_set then choose_set_to_delete(practice_sets, practice_set_names) end
     if option == :quit then at_exit(practice_sets) end
     if option == :practice then practice_chosen_set(practice_sets, practice_set_names, chosen_set_name) end
   end
 
-  def new_set(practice_sets, practice_set_names) #called by choose_set_to_practice
+  def get_new_set(practice_sets, practice_set_names) #called by choose_set_to_practice
     new_set_name, status = AddSetWidget.run_qt
     if status == :back then choose_set_to_practice(practice_sets, practice_set_names) end
     if status == :quit then at_exit(practice_sets) end
     if status == :done
-      if !valid_name(new_set_name) then new_set(practice_sets, practice_set_names) end
-      status = get_first_routine(new_set_name, practice_sets, practice_set_names)   #status must = :quit or :done (i think)
-    return status
+      if !valid_name(new_set_name) then get_new_set(practice_sets, practice_set_names) end
+      get_first_routine(new_set_name, practice_sets, practice_set_names)
     end
   end
 
@@ -119,10 +119,10 @@ class Trainer
       new_routines = [routine]
       build_set(new_set_name, new_routines, practice_sets, practice_set_names)
     end
-    return status #TODO add another routine?
+    #TODO add another routine?
   end
 
-  def get_new_routine(new_routine_name = "", new_routine_link = "") # called by get_first_routine, add_routine, self
+  def get_new_routine(new_routine_name = "", new_routine_link = "") # called by get_first_routine, add_routine, self, practice_routines
     name, link, status, priority = AddRoutineWidget.run_qt(new_routine_name, new_routine_link)
     if status == :quit or status == :back then return status end #status == done
     if valid_name(name) and valid_link(link)
@@ -143,7 +143,7 @@ class Trainer
     sets_to_delete, status = SetsToDeleteWidget.run_qt(practice_set_names)
     if status == :quit then at_exit(practice_sets) end
     if (sets_to_delete == nil or status == :back) then choose_set_to_practice(practice_sets, practice_set_names) end
-    confirmed = ConfirmDeleteWidget.run_qt(sets_to_delete)
+    confirmed = ConfirmDeleteWidget.run_qt(sets_to_delete) #TODO: use ButtonBox instead?
     if confirmed == :not then choose_set_to_practice(practice_sets, practice_set_names) end
     delete_sets(sets_to_delete, practice_sets, practice_set_names)
     choose_set_to_practice(practice_sets, practice_set_names)
@@ -168,6 +168,7 @@ class Trainer
       if response == :back then choose_set_to_practice(practice_sets, practice_set_names) end
       practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets)
     end
+    if ButtonBoxWidget.run_qt("That's all the routines. Do you want to practice another set?") == :yes then choose_set_to_practice(practice_sets, practice_set_names) end
     index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets)
   end
 
@@ -193,8 +194,7 @@ class Trainer
   end
 
   def practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets)  #called by practice_routines
-  #TODO when out of routines, "that's all the routines. do you want to practice another set?"
-    performance_rating, status = HowDidYouDoWidget.run_qt(chosen_routine) #TODO if == 5, change priority?   if quit?
+    performance_rating, status = HowDidYouDoWidget.run_qt(chosen_routine) #TODO if == 5, change priority?
     if status == :show
       launch_routine_file(chosen_routine)
       practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets)
@@ -203,12 +203,8 @@ class Trainer
     if status == :pass
       initial_set_size -= 1
       routines_in_process.delete(chosen_routine)
-    else #status == next TODO: change next button to OK button
-      if practice_success?(chosen_routine, performance_rating)       #TODO PM
-        chosen_routine.index_success_counts
-      else
-        chosen_routine.last_success_value = 0.1
-      end
+    else #status == next
+      practice_success?(chosen_routine, performance_rating)
       chosen_routine.index_practice_counts(chosen_set.session_count)
       routines_in_process.delete(chosen_routine)
     end
