@@ -24,7 +24,7 @@ class ChooseSetToPracticeWidget < Qt::Widget
     super()
     setWindowTitle "CHOOSE A SET"
     resize 200, 180
-    move 100, 300
+    move 10, 30
     show
   end
 

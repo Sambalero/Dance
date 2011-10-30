@@ -23,7 +23,7 @@ class AddSetWidget < Qt::Widget
     init_ui
 
     resize 270, 200
-    move 300, 300
+    move 10, 30
 
     show
   end

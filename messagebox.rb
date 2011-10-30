@@ -1,8 +1,9 @@
 require 'Qt4'
 class MessageBoxWidget < Qt::Widget
+  #the MessageBoxWidget presents a message to the user
 
-attr_accessor :message
- #the MessageBoxWidget presents a message to the user
+  attr_accessor :message
+
   def self.message
     @@message
   end
@@ -11,7 +12,7 @@ attr_accessor :message
     super()
     setWindowTitle ""
     resize 200, 180
-    move 100, 300
+    move 10, 30
     show
   end
 

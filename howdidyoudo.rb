@@ -4,7 +4,7 @@ require 'uri'
 class HowDidYouDoWidget < Qt::Widget
 #called by trainer.suggest_routine
 #TODO close demo window with widget exit
-    attr_accessor :performance_rating, :next_routine, :status
+  attr_accessor :performance_rating, :next_routine, :status
 
   def self.status
     @@status
@@ -34,7 +34,7 @@ class HowDidYouDoWidget < Qt::Widget
     super()
     setWindowTitle "HOW DID YOU DO?"
     resize 200, 300
-    move 100, 300
+    move 10, 30
     init_ui()
     show
   end

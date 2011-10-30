@@ -32,7 +32,7 @@ class DeleteRoutineWidget < Qt::Widget
     super()
     setWindowTitle "DELETE WHICH ROUTINE?"
     resize 200, 180
-    move 100, 300
+    move 10, 30
     show
   end
 

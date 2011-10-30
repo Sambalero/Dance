@@ -77,7 +77,7 @@ class EditRoutineWidget < Qt::Widget
       setWindowTitle "EDIT ROUTINE"
 
       resize 250, 150
-      move 300, 300
+      move 10, 30
 
       show
   end

@@ -63,10 +63,7 @@ require_relative 'messagebox'
 require_relative 'os'
 require_relative 'objects'
 require_relative 'objectmanager'
-require_relative 'confirmdelete'
 require_relative 'buttonbox'
-#require 'ruby-debug'
-#require_relative 'testWidget'
 
 def is_numeric?(string)
   true if Float(string) rescue false
@@ -80,14 +77,9 @@ class Trainer
 ####  include widgets
 
   def main #called at startup
-#  test = TestWidget.run_qt("word")
-#  puts "test = #{test}"
-#if identifyOS == "mac"
-#  os = identifyOS
-#  puts "Operating System is #{os}"
-#end
     practice_sets, practice_set_names = get_practice_sets
     choose_set_to_practice(practice_sets, practice_set_names)
+    MessageBoxWidget.run_qt("Returned to main at exit")
 #      write_practice_sets practice_sets     #TODO PM delete?
   end
                                               #TODO adjust widget screen locations
@@ -112,14 +104,15 @@ class Trainer
   def get_first_routine(new_set_name, practice_sets, practice_set_names) #called by new_set
     message = "Your set needs at least one routine in it"
     MessageBoxWidget.run_qt(message)
-    status, routine = get_new_routine
-    if status == :back then choose_set_to_practice(practice_sets, practice_set_names) end
-    if status == :quit then return :quit end
-    if status == :done
-      new_routines = [routine]
-      build_set(new_set_name, new_routines, practice_sets, practice_set_names)
-    end
-    #TODO add another routine?
+    begin
+      status, routine = get_new_routine
+      if status == :back then choose_set_to_practice(practice_sets, practice_set_names) end
+      if status == :quit then return :quit end
+      if status == :done
+        new_routines = [routine]
+        build_set(new_set_name, new_routines, practice_sets, practice_set_names)
+      end
+    end while ButtonBoxWidget.run_qt("Would you like to add another routine?")
   end
 
   def get_new_routine(new_routine_name = "", new_routine_link = "") # called by get_first_routine, add_routine, self, practice_routines
@@ -217,7 +210,6 @@ end
 #-------------------------------------------------------------------
 
 trainer = Trainer.new.main
-
 
 
 

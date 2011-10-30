@@ -6,7 +6,7 @@ class ChooseRoutineToPracticeWidget < Qt::Widget
  #the ChooseRoutineToPracticeWidget offers an ordered list of routines to choose from, including "none" and "exit program"
  # the entire practice set is passed to it.
  # it returns a chosen routine
- # it needs a set-practiced flag  TODO confirm
+
 attr_accessor :chosen_routine, :routines, :response
 
   def self.response
@@ -29,7 +29,7 @@ attr_accessor :chosen_routine, :routines, :response
     super()
     setWindowTitle "CHOOSE A ROUTINE TO PRACTICE"
     resize 200, 180
-#    move 100, 300
+    move 10, 30
     show
   end
 
@@ -42,7 +42,7 @@ attr_accessor :chosen_routine, :routines, :response
     grid = Qt::GridLayout.new()
 
     i = 0
-    maxRoutineRows = 10
+    maxRoutineRows = 15
     for routine in routines
       init_button(routine)
       if i<maxRoutineRows

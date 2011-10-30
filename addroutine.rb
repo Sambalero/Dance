@@ -39,7 +39,7 @@ class AddRoutineWidget < Qt::Widget
       init_ui
 
       resize 200, 150
-      move 300, 300
+      move 10, 30
 
       show
   end
@@ -94,7 +94,6 @@ class AddRoutineWidget < Qt::Widget
     @priority_label.setText "Set Priority With Slider"
     @priority_label.adjustSize
 
-        #  http://flylib.com/books/en/2.491.1.168/1/
     @done_button = Qt::PushButton.new self
     @done_button.setText "OK"
     connect(@done_button, SIGNAL('clicked()')) { @@status = :done
