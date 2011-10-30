@@ -25,7 +25,7 @@ attr_accessor :message, :response
     @@response = :no
 
     grid = Qt::GridLayout.new()
-puts "message: #{@@message}"
+
     @message_label = Qt::Label.new @@message
     grid.addWidget(@message_label, 0, 0)
 

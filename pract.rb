@@ -143,10 +143,10 @@ class Trainer
     sets_to_delete, status = SetsToDeleteWidget.run_qt(practice_set_names)
     if status == :quit then at_exit(practice_sets) end
     if (sets_to_delete == nil or status == :back) then choose_set_to_practice(practice_sets, practice_set_names) end
-    confirmed = ConfirmDeleteWidget.run_qt(sets_to_delete) #TODO: use ButtonBox instead?
-    if confirmed == :not then choose_set_to_practice(practice_sets, practice_set_names) end
+#    confirmed = ConfirmDeleteWidget.run_qt(sets_to_delete) #TODO: use ButtonBox instead?
+    if confirm_delete(sets_to_delete) == :no then choose_set_to_practice(practice_sets, practice_set_names) end
     delete_sets(sets_to_delete, practice_sets, practice_set_names)
-    choose_set_to_practice(practice_sets, practice_set_names)
+      choose_set_to_practice(practice_sets, practice_set_names)
   end
 
   def practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) # called by set_up_practice_routines, self, delete_routines, edit_routine, add_routine
@@ -166,7 +166,7 @@ class Trainer
         practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
       end
       if response == :back then choose_set_to_practice(practice_sets, practice_set_names) end
-      practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets)
+      practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names)
     end
     if ButtonBoxWidget.run_qt("That's all the routines. Do you want to practice another set?") == :yes then choose_set_to_practice(practice_sets, practice_set_names) end
     index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets)
@@ -188,13 +188,14 @@ class Trainer
     if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
     if status == :back then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
     if routines_to_delete == (nil or []) then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
-    confirmed = ConfirmDeleteWidget.run_qt(routines_to_delete)
-    if confirmed == :not then delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names) end
+#    confirmed = ConfirmDeleteWidget.run_qt(routines_to_delete)
+    if confirm_delete(routines_to_delete) == :no then delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names) end
     delete_routines(routines_in_process, chosen_set, routines_to_delete, initial_set_size)
   end
 
-  def practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets)  #called by practice_routines
-    performance_rating, status = HowDidYouDoWidget.run_qt(chosen_routine) #TODO if == 5, change priority?
+  def practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names)  #called by practice_routines
+    performance_rating, status = HowDidYouDoWidget.run_qt(chosen_routine)
+    if ButtonBoxWidget.run_qt("Congratulations on a perfect performance! Would you like to change the priority for this routine?") == :yes then edit_routine(routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
     if status == :show
       launch_routine_file(chosen_routine)
       practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets)

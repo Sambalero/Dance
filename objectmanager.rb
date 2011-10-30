@@ -1,12 +1,4 @@
-#def is_numeric?(string)     #TODO is this still used?
-#  true if Float(string) rescue false
-#end
-
 module ObjectManager
-
-#  include Marshaller
-#  include Os
-####  include widgets
 
   def get_practice_sets #called trainer.main
 #  test = TestWidget.run_qt("word")
@@ -17,7 +9,7 @@ module ObjectManager
       return practice_sets, practice_set_names
       write_practice_sets practice_sets
     else
-      puts "I can't find your source file. Sorry."
+      MessageBoxWidget.run_qt("Your set needs at least one routine in it")
     end
   end
 
@@ -102,7 +94,7 @@ module ObjectManager
     return new_chosen_set
   end
 
-  def delete_sets(sets_to_delete, practice_sets, practice_set_names) #called by trainer.choose_set_to_delete  TODO confirm with user before delete
+  def delete_sets(sets_to_delete, practice_sets, practice_set_names) #called by trainer.choose_set_to_delete
     sets_to_delete.each do |set_to_delete|
       practice_sets.each do |set|
         practice_sets.delete(set) if set.name == set_to_delete
@@ -111,6 +103,19 @@ module ObjectManager
         practice_set_names.delete(name) if name == set_to_delete
       end
     end
+  end
+
+  def confirm_delete(deletees)
+    message = "This will delete: \n"
+    deletees.each do |deletee|
+      if deletee.class == Routine
+        message = "#{message}\n  #{deletee.name}"
+      else
+        message = "#{message}\n  #{deletee}"
+      end
+    end
+    message = "#{message}\n\nContinue?"
+    ButtonBoxWidget.run_qt(message)
   end
 
   def practice_chosen_set(practice_sets, practice_set_names, chosen_set_name)  #called by choose_set_to_practice
