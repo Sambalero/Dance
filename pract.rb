@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+#
 ################TODO*****IN PROCESS*****TODO#################
 #TODO make sure exits save properly
 #TODO can widget buttons change color or something when clicked?
