@@ -18,6 +18,7 @@ require_relative 'os'
 require_relative 'objects'
 require_relative 'objectmanager'
 require_relative 'buttonbox'
+require_relative 'getfile'
 
 def is_numeric?(string)
   true if Float(string) rescue false
@@ -28,11 +29,24 @@ class Trainer
   include Marshaller
   include Os
   include ObjectManager
+  include GetFile
 
   def main #called at startup
+
+#     file_name  = Qt::FileDialog.new
+#    file_name = GetFileWidget.run_qt()
+#    puts "file name is: #{file_name}"
+
+#file_name = get_file
+#puts "file name is #{file_name}"
+
+
     practice_sets, practice_set_names = get_practice_sets
     choose_set_to_practice(practice_sets, practice_set_names)
     MessageBoxWidget.run_qt("Returned to main at exit")
+
+
+
 #      write_practice_sets practice_sets
   end
 
@@ -70,6 +84,11 @@ class Trainer
 
   def get_new_routine(new_routine_name = "", new_routine_link = "") # called by get_first_routine, add_routine, self, practice_routines
     name, link, status, priority = AddRoutineWidget.run_qt(new_routine_name, new_routine_link)
+    if status == :getFile
+      new_routine_link = get_file
+      if valid_name(name) then new_routine_name = name end
+      name, link, status, priority = AddRoutineWidget.run_qt(new_routine_name, new_routine_link)
+    end
     if status == :quit or status == :back then return status end #status == done
     if valid_name(name) and valid_link(link)
       routine = build_routine(name, link, priority)
@@ -119,6 +138,12 @@ class Trainer
 
   def edit_routine(routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) #called by practice_routines, self
     name, link, priority, practice_count, success_count, last_success_value, status = EditRoutineWidget.run_qt(routine)
+    if status == :getFile
+      routine.link = get_file
+      if valid_name(name) then routine.name = name
+      name, link, priority, practice_count, success_count, last_success_value, status = EditRoutineWidget.run_qt(routine)
+      end
+    end
     if status == :back then practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
     if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
     if status == :done
@@ -139,10 +164,12 @@ class Trainer
 
   def practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names)  #called by practice_routines
     performance_rating, status = HowDidYouDoWidget.run_qt(chosen_routine)
-    if ButtonBoxWidget.run_qt("Congratulations on a perfect performance! Would you like to change the priority for this routine?") == :yes then edit_routine(routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
+    if practice_success?(chosen_routine, performance_rating)
+      if ButtonBoxWidget.run_qt("Congratulations on a perfect performance! Would you like to change the priority for this routine?") == :yes then edit_routine(routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) end
+    end
     if status == :show
       launch_routine_file(chosen_routine)
-      practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets)
+      practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names)
     end
     if status == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
     if status == :pass

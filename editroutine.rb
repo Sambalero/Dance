@@ -111,6 +111,11 @@ class EditRoutineWidget < Qt::Widget
     connect @edit_name, SIGNAL("textChanged(QString)"),
             self, SLOT("new_name(QString)")
 
+    @file_button = Qt::PushButton.new self
+    @file_button.setText "GET FILE"
+    connect(@file_button, SIGNAL('clicked()')) { @@status = :getFile
+    $qApp.quit}
+
     @link_label = Qt::Label.new(self)
     @link_label.setText "Link: #{@@link}"
     @edit_link = Qt::LineEdit.new self
@@ -155,11 +160,12 @@ class EditRoutineWidget < Qt::Widget
     last_success_button.setText "CHANGE"
     last_success_button.resize 30, 20
     connect(last_success_button, SIGNAL('clicked()')) {
-      @@success_count = @@last_success_value == 0.1 ? @@success_count + 1 : @@success_count
-      @@last_success_value = @@last_success_value == 0.1 ? 1 : 0.1
-      success = @@last_success_value == 0.1 ? "No" : "Yes"
-      @last_success_value_label.setText "Last practice successful? #{success}"
-      @success_count_label.setText "Successes: #{@@success_count}"}
+
+    @@success_count = @@last_success_value == 0.1 ? @@success_count + 1 : @@success_count
+    @@last_success_value = @@last_success_value == 0.1 ? 1 : 0.1
+    success = @@last_success_value == 0.1 ? "No" : "Yes"
+    @last_success_value_label.setText "Last practice successful? #{success}"
+    @success_count_label.setText "Successes: #{@@success_count}"}
 
     back_button = Qt::PushButton.new self
     back_button.setText "BACK"
@@ -185,19 +191,20 @@ class EditRoutineWidget < Qt::Widget
     grid.addWidget(name_label, 1, 0, 1, 3)
     grid.addWidget(@edit_name, 2, 0, 1, 3)
     grid.addWidget(link_label, 3, 0, 1, 3)
-    grid.addWidget(@edit_link, 4, 0, 1, 3)
-    grid.addWidget(@lcd, 5, 2)
-    grid.addWidget(@slider, 6, 2)
-    grid.addWidget(@message, 5, 0, 3, 2)
-    grid.addWidget(practice_count_label, 8, 0)
-    grid.addWidget(@edit_practice_count, 8, 2)
-    grid.addWidget(success_count_label, 9, 0)
-    grid.addWidget(@edit_success_count, 9, 2)
-    grid.addWidget(last_success_value_label, 10, 0)
-    grid.addWidget(last_success_button, 10, 2)
-    grid.addWidget(back_button, 11, 0)
-    grid.addWidget(exit_button, 11, 1)
-    grid.addWidget(done_button, 11, 2)
+    grid.addWidget(@file_button, 4, 0, 1, 3) #######################
+    grid.addWidget(@edit_link, 5, 0, 1, 3)
+    grid.addWidget(@lcd, 6, 2)
+    grid.addWidget(@slider, 7, 2)
+    grid.addWidget(@message, 6, 0, 3, 2)
+    grid.addWidget(practice_count_label, 9, 0)
+    grid.addWidget(@edit_practice_count, 9, 2)
+    grid.addWidget(success_count_label, 10, 0)
+    grid.addWidget(@edit_success_count, 10, 2)
+    grid.addWidget(last_success_value_label, 11, 0)
+    grid.addWidget(last_success_button, 11, 2)
+    grid.addWidget(back_button, 12, 0)
+    grid.addWidget(exit_button, 12, 1)
+    grid.addWidget(done_button, 12, 2)
     setLayout(grid)
 
   end

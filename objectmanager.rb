@@ -170,8 +170,10 @@ module ObjectManager
   def practice_success?(chosen_routine, performance_rating) #called by trainer.practice_routines
       if performance_rating == 5 or (performance_rating == 4 and chosen_routine.priority < 4)
         chosen_routine.index_success_counts
+        return true
       else
         chosen_routine.last_success_value = 0.1
+        return false
       end
   end
 

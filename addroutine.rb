@@ -1,27 +1,26 @@
 require 'Qt4'
 
-
 class AddRoutineWidget < Qt::Widget
 
-    slots 'on_changed(QString)', 'theTextChanged()'
+  slots 'on_changed(QString)', 'theTextChanged()'
 
-    attr_accessor :status, :priority, :nombre, :link
+  attr_accessor :status, :priority, :nombre, :link
 
-    def self.nombre
-      @@name
-    end
+  def self.nombre
+    @@name
+  end
 
-    def self.link
-      @@link
-    end
+  def self.link
+    @@link
+  end
 
-    def self.status
-      @@status
-    end
+  def self.status
+    @@status
+  end
 
-    def self.priority
-      @@priority
-    end
+  def self.priority
+    @@priority
+  end
 
   def slider
     @slider
@@ -49,7 +48,7 @@ class AddRoutineWidget < Qt::Widget
     @@priority = 1
 
     @name_label = Qt::Label.new self    #self here puts the widget in the window
-    @name_label.setText "Enter New Routine Name"   #TODO MAKE EXIT WORK!!!!!!!
+    @name_label.setText "Enter New Routine Name"
     @name_label.adjustSize
 
     edit = Qt::LineEdit.new self
@@ -65,8 +64,8 @@ class AddRoutineWidget < Qt::Widget
       5: Basics"
 
     @link_label = Qt::Label.new self
-    @link_label.setText "Type, or Cut and Paste
-    Link, File Path, or Routine Description:"
+    @link_label.setText "Or Type, or Cut and Paste
+    Link or Routine Description Here:"
     @link_label.adjustSize
 
     @message = Qt::Label.new(self)
@@ -94,6 +93,11 @@ class AddRoutineWidget < Qt::Widget
     @priority_label.setText "Set Priority With Slider"
     @priority_label.adjustSize
 
+    @file_button = Qt::PushButton.new self
+    @file_button.setText "GET FILE"
+    connect(@file_button, SIGNAL('clicked()')) { @@status = :getFile
+    $qApp.quit}
+
     @done_button = Qt::PushButton.new self
     @done_button.setText "OK"
     connect(@done_button, SIGNAL('clicked()')) { @@status = :done
@@ -112,6 +116,7 @@ class AddRoutineWidget < Qt::Widget
     box = Qt::VBoxLayout.new
       box.addWidget(@name_label)
       box.addWidget(edit)
+      box.addWidget(@file_button)
       box.addWidget(@link_label)
       box.addWidget(@textedit)
       box.addWidget(@priority_label)
@@ -140,5 +145,7 @@ class AddRoutineWidget < Qt::Widget
     app.exec
     return @@nombre, @@link, status, priority
   end
+
+
 end
 
