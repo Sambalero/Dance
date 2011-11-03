@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 #
 ################TODO*****IN PROCESS*****TODO#################
+#TODO create button class
+#TODO change text size, word wrap in link box
 #TODO make sure exits save properly
 #TODO can widget buttons change color or something when clicked?
 #TODO clean up variable scope in widgets
@@ -35,21 +37,10 @@ class Trainer
 
   def main #called at startup
 
-#     file_name  = Qt::FileDialog.new
-#    file_name = GetFileWidget.run_qt()
-#    puts "file name is: #{file_name}"
-
-#file_name = get_file
-#puts "file name is #{file_name}"
-
-
     practice_sets, practice_set_names = get_practice_sets
     choose_set_to_practice(practice_sets, practice_set_names)
-    MessageBoxWidget.run_qt("Returned to main at exit")
+    MessageBoxWidget.run_qt("Error: Returned to main at exit")
 
-
-
-#      write_practice_sets practice_sets
   end
 
   def choose_set_to_practice(practice_sets, practice_set_names) #called by main and recursed via new_set, add_a_set
@@ -118,20 +109,21 @@ class Trainer
   def practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process) # called by set_up_practice_routines, self, delete_routines, edit_routine, add_routine
     while routines_in_process != []
       chosen_routine, response = ChooseRoutineToPracticeWidget.run_qt(routines_in_process)
-      if response == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
-      if response == :edit_routine
-        routine = RoutineToEditWidget.run_qt(chosen_set.routines)
-        edit_routine(routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
-      end
-      if response == :add_routine
-        add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size)
-        practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
-      end
-      if response == :delete_routine
-        delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names)
-        practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
-      end
-      if response == :back then choose_set_to_practice(practice_sets, practice_set_names) end
+      PracticeRoutinesResponder.new(response).respond(chosen_routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process, self)
+#      if response == :quit then index_session_count(routines_in_process, initial_set_size, chosen_set, practice_sets) end
+#      if response == :edit_routine
+#        routine = RoutineToEditWidget.run_qt(chosen_set.routines)
+#        edit_routine(routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
+#      end
+#      if response == :add_routine
+#        add_routine(chosen_set, practice_sets, practice_set_names, routines_in_process, initial_set_size)
+#        practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
+#      end
+#      if response == :delete_routine
+#        delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names)
+#        practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
+#      end
+#      if response == :back then choose_set_to_practice(practice_sets, practice_set_names) end
       practice_routine(chosen_routine, routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names)
     end
     if ButtonBoxWidget.run_qt("That's all the routines. Do you want to practice another set?") == :yes then choose_set_to_practice(practice_sets, practice_set_names) end

@@ -7,7 +7,7 @@ module GetFile
     f.show()
     file_name = f.getOpenFileName()
     app.exec()
-    if file_name then $qApp.quit end
+    if file_name then $qApp.quit end #this may be superfluous
    return file_name
   end
 end
