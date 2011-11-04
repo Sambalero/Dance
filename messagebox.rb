@@ -1,4 +1,7 @@
 require 'Qt4'
+
+require_relative 'widgets'
+
 class MessageBoxWidget < Qt::Widget
   #the MessageBoxWidget presents a message to the user
 
@@ -27,8 +30,10 @@ class MessageBoxWidget < Qt::Widget
 
     done_button = Qt::PushButton.new 'OK'
     connect(done_button, SIGNAL('clicked()')) {$qApp.quit}
+#    quit, status  = StatusButton.new('OK')
     grid.addWidget(done_button, 1, 0)
-
+#    if quit == :yes then $qApp.quit end
+#   StatusButton needed to be named? and instantiated in such a way as to be included in the layout and still return the appropriate values.
     layout = Qt::VBoxLayout.new()
     layout.addLayout(grid)
     setLayout(layout)
