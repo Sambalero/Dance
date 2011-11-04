@@ -54,7 +54,7 @@ class Routine
   end
 
   def index_success_counts #called by trainer.suggest_routine
-    @success_count +=1
+    @success_count +=1        #You didn't change anything here, right?
     @last_success_value = 1
   end
 end
@@ -97,7 +97,7 @@ end
 
 #--------------------------------------------------------------------
 
-class PracitceResponse
+class PracitceResponse      # How is this different from the above?
   def respond(chosen_routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process, trainer)
     return
   end
@@ -106,7 +106,7 @@ end
 
 #--------------------------------------------------------------------
 
-class DeleteRoutineResponse
+class DeleteRoutineResponse  # There would be one of these, too.
   def respond(chosen_routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process, trainer)
     trainer.delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names)
     trainer.practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
