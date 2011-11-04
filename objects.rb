@@ -54,8 +54,8 @@ class Routine
   end
 
   def index_success_counts #called by trainer.suggest_routine
-	  @success_count +=1
-	  @last_success_value = 1
+    @success_count +=1
+    @last_success_value = 1
   end
 end
 
@@ -93,6 +93,24 @@ class PracticeRoutinesResponder
     trainer.practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
   end
 
+end
+
+#--------------------------------------------------------------------
+
+class PracitceResponse
+  def respond(chosen_routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process, trainer)
+    return
+  end
+end
+
+
+#--------------------------------------------------------------------
+
+class DeleteRoutineResponse
+  def respond(chosen_routine, chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process, trainer)
+    trainer.delete_routine(routines_in_process, initial_set_size, chosen_set, practice_sets, practice_set_names)
+    trainer.practice_routines(chosen_set, practice_sets, practice_set_names, initial_set_size, routines_in_process)
+  end
 end
 
 #--------------------------------------------------------------------
